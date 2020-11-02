@@ -19,7 +19,7 @@
 #include "blsx.h"
 
 
-#define RT_TIMER_THREAD_STACK_SIZE 1024*3
+#define RT_TIMER_THREAD_STACK_SIZE 1024*2
 
 static rt_device_t wdg_dev;    /* 看门狗设备句柄 */
 //static rt_mq_t msg_queue = {0};	
@@ -27,6 +27,7 @@ static rt_device_t wdg_dev;    /* 看门狗设备句柄 */
 static int s_bt_fd = -1;	//蓝牙串口通信的描述符
 
 static rt_uint8_t rt_thread_stack[RT_TIMER_THREAD_STACK_SIZE];
+static rt_uint8_t rt_thread_stack2[RT_TIMER_THREAD_STACK_SIZE];
 
 static struct rt_event event;
 
@@ -349,6 +350,10 @@ void app_wdt_init()
 	
 }
 
+extern void application_start();
+extern int rk_snd_card_init(void);
+extern int rt_hw_codec_es8311_init(void);
+
 static void app_thread_entry(void *parameter)
 {
 	
@@ -366,12 +371,14 @@ static void app_thread_entry(void *parameter)
     /* 初始化事件对象 */
     rt_event_init(&event, "event", RT_IPC_FLAG_FIFO);
 	
-	//rt_printf("hello world!, %s\n", __func__);
+	rt_printf("hello world!, %s\n", __func__);
+	
+	//application_start();
 	
     while (1)
     {
-    	//rt_thread_mdelay(500);
-    	#if 1
+    	rt_thread_mdelay(500);
+    	#if 0
     	//等待消息
 		rt_event_recv(&event, TYPE_POWER|TYPE_RECORD|TYPE_MUTE|TYPE_VOL_ADD|TYPE_VOL_SUB,
 						RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
@@ -423,11 +430,36 @@ static void app_thread_entry(void *parameter)
     }
 }
 
+static void app_thread_entry2(void *parameter)
+{
+	int i = 0;
+
+	for(i = 0; i < 10; i++)
+	{
+		rt_thread_mdelay(1000);
+		if(rt_hw_codec_es8311_init() == RT_EOK)
+		{
+			rt_printf("es8311 init suc, count is %d\n", i+1);
+			break;
+		}
+			
+	}
+	
+	rt_thread_mdelay(10);
+	rk_snd_card_init();
+	rt_thread_mdelay(10);
+	application_start();
+	//system("bt");
+
+	rt_printf("application_start init suc!\n");
+}
+
 
 //所有的线程都可以在这里面创建
 void app_thread_init(void)
 {
 	static struct rt_thread app;
+	static struct rt_thread app2;
 	
     /* initialize thread */
     rt_thread_init(&app,
@@ -438,14 +470,26 @@ void app_thread_init(void)
                    sizeof(rt_thread_stack),
                    RT_THREAD_PRIORITY_MAX - 1,
                    32);
+
+	/* initialize thread */
+    rt_thread_init(&app2,
+                   "app2",
+                   app_thread_entry2,
+                   RT_NULL,
+                   &rt_thread_stack2[0],
+                   sizeof(rt_thread_stack2),
+                   RT_THREAD_PRIORITY_MAX - 1,
+                   32);
 		
     /* startup */
     rt_thread_startup(&app);
+	rt_thread_startup(&app2);
 	
 	rt_printf("create task suc! \r\n");
 	
 }
 
+extern int rt_hw_codec_es8311_init(void);
 void blsx_entry()
 {
 	//i/o初始化		
@@ -455,6 +499,8 @@ void blsx_entry()
 	
 	//创建线程
 	app_thread_init();
+
+	//rt_hw_codec_es8311_init();
 
 }
 
