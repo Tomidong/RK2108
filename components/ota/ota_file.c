@@ -103,7 +103,7 @@ static ota_status ota_update_file_check(void *url)
     LOGD("Current run %d slot fw, will update %d slot fw!", g_fw_curr_slot, 1 - g_fw_curr_slot);
     LOGD("fw1 addr 0x%#x, fw2 addr 0x%#x", firmware_addr1, firmware_addr2);
     LOGD("Data addr 0x%#x", data_start_addr);
-
+	//firmware_addr2 = firmware_addr1;
     if (g_fw_curr_slot == 0)
         addr = firmware_addr2;
     else if (g_fw_curr_slot == 1)
@@ -114,6 +114,7 @@ static ota_status ota_update_file_check(void *url)
     lseek(fd, addr, SEEK_SET);
 
     length = read(fd, TmpBuf, sizeof(TmpBuf));
+	LOGE("length is %d\n", length);
     if (sizeof(TmpBuf) != length)
     {
         LOGE("read image file Error!");

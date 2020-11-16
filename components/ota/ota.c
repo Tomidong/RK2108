@@ -235,6 +235,11 @@ static ota_status ota_update_os_proc(rt_uint8_t *ota_buf, rt_uint8_t *fw_buf,
     os_size      = ota_priv.img_max_size;
     os_addr      = ota_priv.os_addr;
     debug_size   = OTA_UPDATE_DEBUG_UNIT;
+	//os_addr      = 0x120000;//0x20000;
+	if (g_fw_curr_slot == 0)
+        os_addr = firmware_addr2;
+    else if (g_fw_curr_slot == 1)
+        os_addr = firmware_addr1;
 
     LOGD("%s(), request to update seq %d, will update fw start addr 0x%#x\n",
          __func__, 1 - g_fw_curr_slot, os_addr);
@@ -245,7 +250,11 @@ static ota_status ota_update_os_proc(rt_uint8_t *ota_buf, rt_uint8_t *fw_buf,
     }
 
     if (os_size == 0)
-        return OTA_STATUS_OK;
+    {
+    	LOGE("Error: fw%d os_size is 0!!!");
+    	return OTA_STATUS_OK;
+    }
+        
 
     LOGI("system image max size %u", os_size);
 
@@ -260,7 +269,7 @@ static ota_status ota_update_os_proc(rt_uint8_t *ota_buf, rt_uint8_t *fw_buf,
 
         rt_memset(ota_buf, 0, OTA_BUF_SIZE);
         status = get_cb(ota_buf, len, &recvSize, &eof_flag);
-//        LOGD("read from file size = %d", recvSize);
+        //LOGD("read from file size = %d", recvSize);
         if (status != OTA_STATUS_OK)
         {
             LOGE("ota file get process status %d\n", status);
@@ -270,7 +279,7 @@ static ota_status ota_update_os_proc(rt_uint8_t *ota_buf, rt_uint8_t *fw_buf,
         rt_memset(fw_buf, 0, OTA_BUF_SIZE);
         rt_memcpy(fw_buf, ota_buf, OTA_BUF_SIZE);
 
-        //LOGD("next os addr = 0x%x", os_addr);
+       // LOGD("next os addr = 0x%x", os_addr);
         rt_mtd_nor_erase_block(snor_device, os_addr, snor_device->block_size);
         write_size = rt_mtd_nor_write(snor_device, os_addr,
                                       (const rt_uint8_t *)fw_buf, snor_device->block_size);
@@ -296,7 +305,7 @@ static ota_status ota_update_os_proc(rt_uint8_t *ota_buf, rt_uint8_t *fw_buf,
 
         if (ota_priv.get_size >= debug_size)
         {
-            //LOGD("OTA: Donwloaded image (%u KB)...", ota_priv.get_size / 1024);
+           // LOGD("OTA: Donwloaded image (%u KB)...", ota_priv.get_size / 1024);
             debug_size += OTA_UPDATE_DEBUG_UNIT;
         }
 

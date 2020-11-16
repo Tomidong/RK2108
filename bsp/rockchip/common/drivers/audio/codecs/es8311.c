@@ -62,7 +62,7 @@ static rt_err_t es_wr_reg(struct rt_i2c_client *i2c_client,
     ret = rt_i2c_transfer(i2c_client->bus, msgs, 1);
     if (ret != 1)
     {
-        rt_kprintf("ERR: %s: failed: (%d)\n", __func__, ret);
+        rt_kprintf("ERR: %s: failed: (%d), ret is 0x%x, data is 0x%x\n", __func__, ret, reg8, data8);
         return ret;
     }
 
@@ -88,7 +88,7 @@ static rt_err_t es_rd_reg(struct rt_i2c_client *i2c_client,
     ret = rt_i2c_transfer(i2c_client->bus, msgs, 2);
     if (ret != 2)
     {
-        rt_kprintf("ERR: %s: failed: (%d)\n", __func__, ret);
+        rt_kprintf("ERR: %s: failed: (%d), ret is 0x%x, data is 0x%x\n", __func__, ret, reg8, data8);
         return ret;
     }
 
@@ -244,8 +244,8 @@ static rt_err_t es8311_config(struct audio_codec *codec, eAUDIO_streamType strea
     rt_err_t ret = RT_EOK;
 
     /* Vendor suggest  that after bclk output and init codec */
-    if (es8311->work_cnt <= 0)
-        ret |= es8311_reg_init(es8311);
+    //if (es8311->work_cnt <= 0)
+    //   ret |= es8311_reg_init(es8311); //75ms
 
     switch (params->sampleBits)
     {
@@ -267,17 +267,20 @@ static rt_err_t es8311_config(struct audio_codec *codec, eAUDIO_streamType strea
     default:
         return -RT_EINVAL;
     }
-
+	
+	//rt_kprintf("%s current1 tick: %ld\n", __func__, rt_tick_get());
+	//1ms
     ret |= es_update_bits(es8311->i2c_client, ES8311_SDPIN_REG09,
                           ES8311_SDPIN_REG09_DACWL_MASK,
                           wl << ES8311_SDPIN_REG09_DACWL_SHIFT);
-
+	//rt_kprintf("%s current1 tick: %ld\n", __func__, rt_tick_get());
+	//1ms
     ret |= es_update_bits(es8311->i2c_client, ES8311_SDPOUT_REG0A,
                           ES8311_SDPOUT_REG0A_ADCWL_MASK,
                           wl << ES8311_SDPOUT_REG0A_ADCWL_SHIFT);
-
-    if (stream == AUDIO_STREAM_PLAYBACK)
-        es_pa_ctl(1);
+	//rt_kprintf("%s current1 tick: %ld\n", __func__, rt_tick_get());
+    //if (stream == AUDIO_STREAM_PLAYBACK)
+   //     es_pa_ctl(1);
 
     if (ret != RT_EOK)
         rt_kprintf("ERR: %s, something wrong: %d\n", __func__, ret);
@@ -291,6 +294,7 @@ static rt_err_t es8311_start(struct audio_codec *codec, eAUDIO_streamType stream
     rt_mutex_take(&lock, RT_WAITING_FOREVER);
     es8311->work_cnt++;
     rt_mutex_release(&lock);
+	//rt_kprintf("=====%s========\n\n", __func__);
     return RT_EOK;
 }
 
@@ -304,10 +308,11 @@ static rt_err_t es8311_stop(struct audio_codec *codec, eAUDIO_streamType stream)
     rt_mutex_release(&lock);
     if (es8311->work_cnt <= 0)
         es8311_codec_standby(es8311);
-    if (stream == AUDIO_STREAM_PLAYBACK)
-        es_pa_ctl(0);
-
-
+    //if (stream == AUDIO_STREAM_PLAYBACK)
+    //    es_pa_ctl(0);
+	//rt_kprintf("=====%s====es8311->work_cnt is %d====\n\n", __func__, es8311->work_cnt);
+	es8311_reg_init(es8311);
+		
     return ret;
 }
 
@@ -367,6 +372,8 @@ int rt_hw_codec_es8311_init(void)
         goto err;
     }
     ret |= rk_audio_register_codec(&es8311->codec);
+	ret |= es8311_reg_init(es8311);
+	HAL_GPIO_SetPinLevel(ES8311_PA_GPIO, ES8311_PA_PIN, GPIO_HIGH);
     if (ret != RT_EOK)
     {
         rt_kprintf("ERR: %s, something wrong: %d\n", __func__, ret);
@@ -384,5 +391,6 @@ err:
 }
 
 INIT_DEVICE_EXPORT(rt_hw_codec_es8311_init);
+MSH_CMD_EXPORT(rt_hw_codec_es8311_init, es8311_init);
 
 #endif

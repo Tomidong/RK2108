@@ -77,7 +77,7 @@ static rt_err_t es_rd_reg(struct rt_i2c_client *i2c_client,
     ret = rt_i2c_transfer(i2c_client->bus, msgs, 2);
     if (ret != 2)
     {
-        rt_kprintf("ERR: %s: failed: (%d)\n", __func__, ret);
+        rt_kprintf("ERR: %s: failed: (%d), ret is 0x%x, data is 0x%x\n", __func__, ret, reg8, data8);
         return ret;
     }
 

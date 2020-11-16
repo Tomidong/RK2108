@@ -1138,12 +1138,13 @@ static rt_err_t rk_dsp_control(struct rt_dsp_device *dsp, int cmd, void *arg)
                 work->algo_type, work->param_size, work->param);
         ret = dsp_mbox_send_msg(dsp_dev->mboxReg, MBOX_CH_0,
                                 DSP_CMD_WORK, work);
+		//rt_kprintf("%d send data\n", __LINE__);
         break;
     case RKDSP_CTL_DEQUEUE_WORK:
         ret = rt_mb_recv(rkdsp->work_mb, &value, RT_WAITING_FOREVER);
         if (ret)
             break;
-
+		//rt_kprintf("%d recv data\n", __LINE__);
         recv_work = (struct dsp_work *)value;
         if (recv_work != work)
         {

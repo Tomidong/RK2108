@@ -125,11 +125,16 @@ static void dsp_vad_wakeup(void *args)
                            (uint32_t)cfg_param, sizeof(struct wake_cfg_param));
     if (!work)
         rt_kprintf("dsp create config work fail\n");
-
+	
+	rt_kprintf("dsp create config work suc\n");
+	
     ret = rt_device_control(dsp_dev, RKDSP_CTL_QUEUE_WORK, work);
     RT_ASSERT(!ret);
+	//rt_kprintf("1111111111111111111\n");
     ret = rt_device_control(dsp_dev, RKDSP_CTL_DEQUEUE_WORK, work);
+	//rt_kprintf("22222222222222222222\n");
     RT_ASSERT(!ret);
+	//rt_kprintf("333333333333333333\n");
     rt_kprintf("ringbuf_addr:0x%08x, period_size:0x%08x\n",
                cfg_param->ringbuf_addr, cfg_param->period_size);
     dsp_destory_work(work);

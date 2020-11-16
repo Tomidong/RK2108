@@ -57,6 +57,7 @@ __sys__ int system_receive_data(struct mbox_client *client, uint32_t cmd,
         work_cache_writeback(work);
         LOGD("Hifi3 config done\n");
         mbox_send_data(sys_mbox.id, sys_mbox.chan, DSP_CMD_CONFIG_DONE, (uint32_t)work);
+		rt_kprintf("hifi send over\n");
         break;
     case DSP_CMD_SUSPEND:
         pm_sleep(SLEEP_NOR);

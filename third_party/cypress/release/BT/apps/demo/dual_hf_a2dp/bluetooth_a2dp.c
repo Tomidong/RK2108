@@ -444,7 +444,9 @@ static void bt_audio_sink_control_cb(wiced_bt_a2dp_sink_event_t event, wiced_bt_
     wiced_app_service_t        *service = NULL;
     wiced_bt_device_address_t   bda;
     int                         context_index;
-
+	
+	WPRINT_APP_INFO(("bt_audio_sink_control_cb tick: %ld\n\n", rt_tick_get()));	
+	
     switch (event)
     {
     case WICED_BT_A2DP_SINK_CONNECT_EVT:
@@ -906,7 +908,8 @@ static void bt_audio_remote_control_cmd_cback(wiced_bt_device_address_t remote_a
 static void bt_audio_remote_control_rsp_cback(wiced_bt_device_address_t remote_addr, wiced_bt_avrc_response_t *avrc_rsp)
 {
     int index;
-
+	
+	//WPRINT_APP_INFO(("%s current1 tick: %ld\n", __func__, rt_tick_get()));
 #ifdef DUAL_A2DP_LOG_ENABLE
     WPRINT_APP_INFO(("%s: \n", __func__));
 #endif

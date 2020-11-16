@@ -79,10 +79,12 @@ void bt_audio_write_to_player_buffer(bt_audio_codec_data_t *pcm)
 {
     static uint8_t q_count = 0;
     wiced_result_t result;
+
     //rt_kprintf("w%d\n", is_bt_audio_device_initialized(BT_AUDIO_DEVICE_PLAYER));
     //if (0)
     if (WICED_TRUE == is_bt_audio_device_initialized(BT_AUDIO_DEVICE_PLAYER))
-    {
+    {  	
+
         result = wiced_rtos_push_to_queue(&player.queue, &pcm, WICED_NO_WAIT);
         if (result != WICED_SUCCESS)
         {
@@ -212,6 +214,7 @@ static wiced_bool_t read_bluetooth_audio_data(uint8_t *buffer, uint16_t *size)
 
 static uint8_t audio_buffer[4 * 1024];
 extern void a2d_audio_play(uint8_t *data, int len);
+extern rt_tick_t rt_tick_get(void);
 
 void bt_audio_player_task(uint32_t args)
 {
@@ -220,12 +223,16 @@ void bt_audio_player_task(uint32_t args)
     uint16_t          available_bytes;
     wiced_result_t    result;
     uint32_t   flags_set;
-
+	static int flag = 1;
+	static int a = 0;
     for (;;)
     {
+    	//WPRINT_APP_INFO(("current1 tick: %ld\n", rt_tick_get()));
+		//continue;
         /* Wait for an audio ready event( all bluetooth audio buffers must be filled before starting playback ) */
         result = wiced_rtos_wait_for_event_flags(&player.events, BT_AUDIO_EVENT_ALL, &flags_set, WICED_TRUE, WAIT_FOR_ANY_EVENT, WICED_WAIT_FOREVER);
-        if (result != WICED_SUCCESS)
+		WPRINT_APP_INFO(("current1 tick: %ld\n", rt_tick_get()));
+		if (result != WICED_SUCCESS)
             continue;
 
         if ((flags_set & BT_AUDIO_EVENT_DEINIT) == BT_AUDIO_EVENT_DEINIT)
@@ -237,9 +244,16 @@ void bt_audio_player_task(uint32_t args)
         WPRINT_APP_INFO(("[BT-PLAYER] Start bluetooth playback (flags_set: 0x%x) \n", flags_set));
         /* Audio thread is started, now it will read contents of queued bluetooth audio buffers and give it for further processing
          *  to the audio framework */
+    //    WPRINT_APP_INFO(("current12 tick: %ld\n", rt_tick_get()));
         while (!(flags_set & BT_AUDIO_EVENT_STOP_LOOP))
         {
             available_bytes = 1 * 512;
+			/*if(a < 10)
+			{
+				a++;
+				flag = 1;
+			}*/
+			
             while (available_bytes > 0)
             {
                 n = available_bytes;
@@ -256,6 +270,11 @@ void bt_audio_player_task(uint32_t args)
                     break;
 
                 a2d_audio_play(ptr, n);
+				if(flag == 1)
+				{
+					flag = 0;
+					WPRINT_APP_INFO(("current123 tick: %ld\n", rt_tick_get()));
+				}
                 available_bytes -= n;
 
             } /* while (available_bytes > 0) */

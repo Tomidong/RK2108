@@ -720,7 +720,8 @@ int HAL_SYS_Suspend(struct PM_SUSPEND_INFO *suspendInfo)
     SOC_FastBootDisable(pGrf);
     SOC_PutChar('0', pUart);
 #ifdef HAL_SYSTICK_MODULE_ENABLED
-    HAL_SYSTICK_CLKSourceConfig(HAL_SYSTICK_CLKSRC_EXT);
+	HAL_SYSTICK_CLKSourceConfig(HAL_TICK_CLKSRC_EXT);
+	HAL_SYSTICK_Config((PLL_INPUT_OSC_RATE / RT_TICK_PER_SECOND) - 1);
     HAL_SYSTICK_Enable();
 #endif
 

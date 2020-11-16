@@ -127,7 +127,5 @@ int rt_application_init()
     	rt_thread_startup(init_thread);
     }
         
-	//blsx_entry();
-
     return 0;
 }

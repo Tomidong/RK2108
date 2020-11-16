@@ -96,7 +96,8 @@ __sys__ int worker_run(void)
     /* Clear power state machine */
     pm_pwrdown_enable(false);
 #endif
-    while (1) {
+    while (1) 
+	{
         clock_t clock_start = 0, clock_end = 0;
         int ret = 0;
 
@@ -114,7 +115,10 @@ __sys__ int worker_run(void)
             continue;
 
         clock_start = clock();
-        switch (g_worker.work->work_type) {
+		rt_kprintf("work_type is %d\n", g_worker.work->work_type);
+        switch (g_worker.work->work_type) 
+		{
+			
         case ALGORITHM_WORK:
             ret = algo_handler((struct worker *)&g_worker, g_worker.work);
             break;

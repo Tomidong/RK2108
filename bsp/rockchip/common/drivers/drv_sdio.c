@@ -641,11 +641,16 @@ static int rt_mmc_pm_suspend(const struct rt_device *device)
 static void rt_mmc_pm_resume(const struct rt_device *device)
 {
     struct HAL_MMC_HOST *hal_host = device->user_data;
+	struct clk_gate *clkgate;
+	
     HAL_MMC_Init(hal_host);
     HAL_MMC_PowerCtrl(hal_host, true);
     HAL_MMC_UpdateClockRegister(hal_host, hal_host->cachedDiv);
     HAL_MMC_SetCardWidth(hal_host, hal_host->cachedBw);
-
+	clkgate = get_clk_gate_from_id(HCLK_SDIO_GATE);
+    clk_enable(clkgate);
+    clkgate = get_clk_gate_from_id(CLK_SDIO_GATE);
+    clk_enable(clkgate);
 }
 
 static struct rt_device_pm_ops rk_mmc_pm_ops =

@@ -85,6 +85,8 @@ void rtthread_startup(void)
 
     /* init timer system */
     rt_system_timer_init();
+	
+	rt_kprintf("---------------------------------------------------0004\r\n");
 
 #ifdef RT_USING_HEAP
     rt_system_heap_init((void *)RK_SRAM_BEGIN, (void *)RK_SYS_HEAP_END);

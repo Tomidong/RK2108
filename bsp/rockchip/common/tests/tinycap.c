@@ -477,10 +477,10 @@ int tinycap_audio()
     if (!config)
         return 1;
 
-    file = fopen("/qq.wav", "w+");
+    file = fopen("/mnt/sdcard/record.wav", "w+");
     if (!file)
     {
-        rt_kprintf("Unable to create file '%s'\n", "/sdcard/123.wav");
+        rt_kprintf("Unable to create file '/mnt/sdcard/record.wav'\n");
         goto err;
     }
 

@@ -277,7 +277,6 @@ int dfs_mount(const char   *device_name,
         {
             rt_free(fullpath);
             rt_set_errno(-ENOTDIR);
-
             return -1;
         }
         dfs_file_close(&fd);
@@ -324,7 +323,6 @@ int dfs_mount(const char   *device_name,
             /* The underlaying device has error, clear the entry. */
             dfs_lock();
             memset(fs, 0, sizeof(struct dfs_filesystem));
-
             goto err1;
         }
     }
@@ -510,6 +508,7 @@ int dfs_mount_table(void)
         {
             LOG_E("mount fs[%s] on %s failed.\n", mount_table[index].filesystemtype,
                        mount_table[index].path);
+					   
             return -RT_ERROR;
         }
 

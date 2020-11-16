@@ -152,6 +152,8 @@ static void *card_open(char *name)
 
 static uint32_t card_read(void *card, char *buf, size_t size, size_t count)
 {
+	if(card == NULL)
+		rt_kprintf("%s card is NULL\n", __func__);
     return rt_device_read(card, 0, buf, count);
 }
 
@@ -226,6 +228,9 @@ static void do_opus_encode(void *arg)
     rt_hw_cpu_dcache_ops(RT_HW_CACHE_INVALIDATE, (void *)&g_ABCoreDat, sizeof(struct share_data));
     g_opus = (opus_enc_t *)g_ABCoreDat.dat[0];
     rt_hw_cpu_dcache_ops(RT_HW_CACHE_INVALIDATE, (void *)g_opus, sizeof(opus_enc_t));
+	
+	rt_kprintf("g_opus->frame_size is %d.\n", g_opus->frame_size);
+	//g_opus->frame_size = 1024;
     rkdsp_free(info);
     for (int i = 0; i < info->comment_num; i++)
         rkdsp_free(comments[i]);
@@ -254,6 +259,11 @@ static void do_opus_encode(void *arg)
         opus_reader.close(opus_reader.or);
         goto EXIT;
     }
+	//rt_kprintf("1111111111111111\n");
+	if (opus_reader.or == NULL)
+    {
+        rt_kprintf("Open %s failed.\n", opus_reader.name);
+    }
     if (g_opus->header_size)
     {
         rt_hw_cpu_dcache_ops(RT_HW_CACHE_INVALIDATE, (void *)g_opus->_buffer_header, g_opus->header_size);
@@ -268,7 +278,9 @@ static void do_opus_encode(void *arg)
                        g_opus->header_size);
         g_opus->header_size = 0;
         rt_hw_cpu_dcache_ops(RT_HW_CACHE_FLUSH, (void *)g_opus, sizeof(opus_enc_t));
+		//rt_kprintf("222222222222222222\n");
     }
+	
     while (count)
     {
         size_t in_bytes = opus_reader.read(opus_reader.or, (void *)g_opus->_buffer_in,

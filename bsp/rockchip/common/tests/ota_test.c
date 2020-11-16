@@ -68,11 +68,12 @@ void ota_test_main(void *arg)
         LOGE("ota update image Fail!!!\n");
         goto END;
     }
-
+	ota_reboot(0);
 #ifdef RT_USING_OTA_RECOVERY
     /* if enable recovery mode and running in slot 0, should reboot to slot 1 to
      * run ota task, to do upgrade work.
      */
+	LOGD("slot_boot_idx is %d, ret is %d\n", slot_boot_idx, ret);
     if (slot_boot_idx == 0 && OTA_STATUS_OK == ret)
     {
         LOGD("!!! OTA type is recovery mode, will reboot to run Fw2 !!!");

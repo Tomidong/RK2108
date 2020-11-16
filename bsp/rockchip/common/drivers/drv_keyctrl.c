@@ -221,6 +221,7 @@ static void rt_keyctrl_scan_timer_func(void *parameter)
 
     if (key_value != 0)
     {
+    	//rt_kprintf("key123 data is %d\n", key_value);
         keyctrl_dev->delay_count++;
         if ((keyctrl_dev->delay_count > KEYCTRL_LONG_TIME_PRESS_THRESHOLD) &&
                 ((keyctrl_dev->delay_count - KEYCTRL_LONG_TIME_PRESS_THRESHOLD) % KEYCTRL_LONG_TIME_PRESS_REPEAT == 0))
@@ -321,7 +322,7 @@ static rt_err_t rt_keyctrl_init(rt_device_t dev)
         if (!keyctrl_dev->key_scan_timer)
             return RT_ERROR;
     }
-
+	
     return RT_EOK;
 }
 

@@ -23,9 +23,7 @@
 #define RT_USING_IDLE_HOOK
 #define RT_IDEL_HOOK_LIST_SIZE 4
 #define IDLE_THREAD_STACK_SIZE 512
-#define RT_USING_TIMER_SOFT
-#define RT_TIMER_THREAD_PRIO 4
-#define RT_TIMER_THREAD_STACK_SIZE 512
+/* RT_USING_TIMER_SOFT is not set */
 #define RT_DEBUG
 /* RT_DEBUG_COLOR is not set */
 /* RT_DEBUG_INIT_CONFIG is not set */
@@ -106,8 +104,8 @@
 
 #define RT_USING_DFS
 #define DFS_USING_WORKDIR
-#define DFS_FILESYSTEMS_MAX 4
-#define DFS_FILESYSTEM_TYPES_MAX 4
+#define DFS_FILESYSTEMS_MAX 3
+#define DFS_FILESYSTEM_TYPES_MAX 3
 #define DFS_FD_MAX 16
 #define RT_USING_DFS_MNTTABLE
 #define RT_USING_DFS_ELMFAT
@@ -317,9 +315,34 @@
 /* PKG_CMBACKTRACE_FAULT_REBOOT is not set */
 /* PKG_CMBACKTRACE_FAULT_DUMP_TO_FLASH is not set */
 /* RT_USING_LOGTRACE is not set */
-/* RT_USING_RYM is not set */
+#define RT_USING_RYM
+/* YMODEM_USING_CRC_TABLE is not set */
+#define YMODEM_USING_FILE_TRANSFER
 /* RT_USING_RZM is not set */
-/* RT_USING_ULOG is not set */
+#define RT_USING_ULOG
+/* ULOG_OUTPUT_LVL_A is not set */
+/* ULOG_OUTPUT_LVL_E is not set */
+/* ULOG_OUTPUT_LVL_W is not set */
+/* ULOG_OUTPUT_LVL_I is not set */
+#define ULOG_OUTPUT_LVL_D
+#define ULOG_OUTPUT_LVL 7
+#define ULOG_USING_ISR_LOG
+#define ULOG_ASSERT_ENABLE
+#define ULOG_LINE_BUF_SIZE 128
+/* ULOG_USING_ASYNC_OUTPUT is not set */
+
+/* log format */
+
+/* ULOG_OUTPUT_FLOAT is not set */
+#define ULOG_USING_COLOR
+#define ULOG_OUTPUT_TIME
+/* ULOG_TIME_USING_TIMESTAMP is not set */
+#define ULOG_OUTPUT_LEVEL
+#define ULOG_OUTPUT_TAG
+/* ULOG_OUTPUT_THREAD_NAME is not set */
+#define ULOG_BACKEND_USING_CONSOLE
+/* ULOG_USING_FILTER is not set */
+/* ULOG_USING_SYSLOG is not set */
 /* RT_USING_UTEST is not set */
 
 /* ARM CMSIS */
@@ -331,7 +354,14 @@
 
 /* RT_USING_BENCHMARK is not set */
 /* RT_USING_NET_HTTP is not set */
-/* RT_USING_OTA is not set */
+#define RT_USING_OTA
+
+/* OTA Component Options */
+
+/* RT_USING_OTA_RECOVERY is not set */
+#define RT_USING_OTA_FROM_LOCAL
+/* RT_USING_OTA_FROM_HTTP is not set */
+/* RT_SUPPORT_ROOT_AB is not set */
 
 /* RT-Thread third party package */
 
@@ -411,7 +441,7 @@
 /* RT_USING_PMIC is not set */
 #define RT_USING_CACHE
 #define RT_USING_UNCACHE_HEAP
-#define RT_UNCACHE_HEAP_ORDER 0x0F
+#define RT_UNCACHE_HEAP_ORDER 0x0E
 #define RT_USING_LARGE_HEAP
 #define RT_LARGE_MALLOC_THRRESH 512
 #define RT_LARGE_HEAP_SIZE 524288
@@ -453,17 +483,24 @@
 /* Enable Audio */
 
 #define RT_USING_CODEC
-#define RT_USING_ACDCDIG
 #define RT_USING_CODEC_ES8311
-/* RT_USING_DRIVER_AUDIO_PCM_PLUGIN is not set */
+#define RT_USING_DRIVER_AUDIO_PCM_PLUGIN
+#define RT_USING_DRIVER_AUDIO_PCM_PLUGIN_HW
+#define RT_USING_DRIVER_AUDIO_PCM_PLUGIN_SOFTVOL
+
+/* PCM Softvol Configuration */
+
+#define SOFTVOL_MIN_DB "-50.0"
+#define SOFTVOL_MAX_DB "0.0"
+#define SOFTVOL_FORMAT "S16_LE"
+#define SOFTVOL_CHANNELS 2
+#define SOFTVOL_RESOLUTION 100
 
 /* Audio Cards */
 
 #define RT_USING_AUDIO_CARD
-#define RT_USING_AUDIO_CARD_ACDCDIG
-#define RT_USING_ACDCDIG_PDM0
-/* RT_USING_ACDCDIG_PDM0_SDI2 is not set */
-#define RT_USING_AUDIO_CARD_AUDIOPWM
+/* RT_USING_AUDIO_CARD_ACDCDIG is not set */
+/* RT_USING_AUDIO_CARD_AUDIOPWM is not set */
 /* RT_USING_AUDIO_CARD_I2S_MIC is not set */
 #define RT_USING_AUDIO_CARD_PDM_MIC
 /* RT_USING_AUDIO_CARD_ES7243 is not set */
@@ -476,7 +513,6 @@
 /* Audio Interfaces */
 
 #define RT_USING_PCM
-#define RT_USING_AUDIOPWM
 #define RT_USING_I2STDM
 #define RT_USING_I2STDM1
 #define RT_USING_PDM
@@ -543,7 +579,32 @@
 
 /* RT_USING_TC is not set */
 /* RT_USING_FILE_TEST is not set */
-/* RT_USING_COMMON_TEST is not set */
+#define RT_USING_COMMON_TEST
+/* RT_USING_AUTO_TEST is not set */
+/* RT_USING_COMMON_TEST_SUSPEND is not set */
+/* RT_USING_COMMON_TEST_AUDIO is not set */
+/* RT_USING_COMMON_TEST_CODEC_ES8388 is not set */
+/* RT_USING_COMMON_TEST_CPU_USAGE is not set */
+/* RT_USING_COMMON_TEST_DCACHE is not set */
+/* RT_USING_COMMON_TEST_ICACHE is not set */
+/* RT_USING_COMMON_TEST_DSP is not set */
+/* RT_USING_DSP_OPUS_CODEC_TEST is not set */
+/* RT_USING_COMMON_TEST_GPIO is not set */
+/* RT_USING_COMMON_TEST_I2C is not set */
+/* RT_USING_COMMON_TEST_KEYCTRL is not set */
+/* RT_USING_COMMON_TEST_MBOX is not set */
+/* RT_USING_COMMON_MEMTESTER is not set */
+/* RT_USING_COMMON_TEST_MPU is not set */
+/* RT_USING_COMMON_TEST_PM is not set */
+/* RT_USING_COMMON_TEST_SNOR is not set */
+/* RT_USING_COMMON_TEST_SPI is not set */
+/* RT_USING_COMMON_STRESS_TEST is not set */
+/* RT_USING_COMMON_TEST_UART is not set */
+/* RT_USING_COMMON_TEST_WDT is not set */
+/* RT_USING_COMMON_TEST_PERFORMANCE is not set */
+/* RT_USING_COMMON_TEST_FWANALYSIS is not set */
+#define RT_USING_COMMON_TEST_OTA
+/* RT_USING_COMMON_TEST_TIMER is not set */
 #define RT_USING_FWANALYSIS
 
 #endif

@@ -80,10 +80,13 @@
  */
 void audio_iomux_config(void)
 {
-    HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
+    /*HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
                          GPIO_PIN_D1 |  // AUDIO_LOUT_M0
                          GPIO_PIN_D2,   // AUDIO_ROUT_M0
-                         PIN_CONFIG_MUX_FUNC3);
+                         PIN_CONFIG_MUX_FUNC3);*/
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK1,
+                         GPIO_PIN_A4| GPIO_PIN_A5,   // AUDIO_LOUT_M1
+                         PIN_CONFIG_MUX_FUNC5);
 }
 
 void rt_hw_iomux_config(void)

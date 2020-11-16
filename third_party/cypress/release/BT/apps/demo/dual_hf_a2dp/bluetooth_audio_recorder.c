@@ -130,10 +130,10 @@ void bta_wiced_audio_recorder_task(uint32_t context)
     wiced_result_t    result;
     uint16_t          available_bytes;
     uint32_t   flags_set;
-
+	int a = 1;
     for (;;)
     {
-
+		a = 1;
         result = wiced_rtos_wait_for_event_flags(&recorder.events, BT_AUDIO_EVENT_ALL, &flags_set, WICED_TRUE, WAIT_FOR_ANY_EVENT, WICED_WAIT_FOREVER);
         if (result != WICED_SUCCESS)
         {
@@ -148,14 +148,14 @@ void bta_wiced_audio_recorder_task(uint32_t context)
         }
 
         WPRINT_APP_INFO(("[BT-RECORDER] Start task... (flags_set 0x%x)\n", flags_set));
-
+		//WPRINT_APP_INFO(("%s current1 tick: %ld\n",  __func__, rt_tick_get()));
         while (!(flags_set & BT_AUDIO_EVENT_STOP_LOOP))
         {
             //ensure that recorder is initialized at this point of time.
             uint32_t wait_time = ((NUM_USECONDS_IN_SECONDS / recorder.bluetooth_audio_config.sample_rate) * (BT_AUDIO_DEFAULT_PERIOD_SIZE / (recorder.bluetooth_audio_config.channels))) / NUM_MSECONDS_IN_SECONDS;
             available_bytes = 1024; //BT_AUDIO_DEFAULT_PERIOD_SIZE;
             ptr = r_audio_buffer;
-            //APPL_TRACE_ERROR0( "[BT-RECORDER] wait buffer done..." );
+            APPL_TRACE_ERROR0( "[BT-RECORDER] wait buffer done..." );
             while (available_bytes > 0)
             {
                 /* request for at least for a period size */
@@ -170,6 +170,11 @@ void bta_wiced_audio_recorder_task(uint32_t context)
 
                 rk_recorder_capture_sample(ptr, n / 4);
                 write_bluetooth_audio_data(ptr, n);
+				if(a == 1)
+				{
+					a = 0;
+					WPRINT_APP_INFO(("%s current1 tick: %ld\n",  __func__, rt_tick_get()));
+				}
                 available_bytes -= n;
             }
             result = wiced_rtos_wait_for_event_flags(&recorder.events, BT_AUDIO_EVENT_ALL, &flags_set, WICED_TRUE, WAIT_FOR_ANY_EVENT, WICED_NO_WAIT);

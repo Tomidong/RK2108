@@ -7,6 +7,10 @@
 struct TIMER_REG *pTimer = TIMER0;
 static uint32_t sleep_count = 0 ;
 static rt_event_t wakeup_event;
+static char rt_thread_stack[2048] = {0};
+
+static int flag = 1;
+static int a = 0;
 
 void timer0_IRQHandler(void)
 {
@@ -16,9 +20,18 @@ void timer0_IRQHandler(void)
     pTimer->INTSTATUS = 0x01;
     rt_kprintf("suspend count: %d\n", sleep_count++);
 
-    /* leave interrupt */
     rt_interrupt_leave();
 }
+
+void testfun(void *parameter)
+{
+	while (1)
+    {
+        rt_kprintf("hello world\n");
+		rt_thread_mdelay(500);
+    }
+}
+
 
 static void timer0_wakeup_init(int argc, char **argv)
 {
@@ -40,6 +53,19 @@ static void timer0_wakeup_init(int argc, char **argv)
     pTimer->LOAD_COUNT[0] = sec_to_count;
     pTimer->LOAD_COUNT[1] = 0x0000;
     pTimer->CONTROLREG = 0x05;
+
+	/*static struct rt_thread test;
+	
+    rt_thread_init(&test,
+                   "test",
+                   testfun,
+                   RT_NULL,
+                   &rt_thread_stack[0],
+                   sizeof(rt_thread_stack),
+                   RT_THREAD_PRIORITY_MAX - 1,
+                   100);
+	//timer_app_init();
+	rt_thread_startup(&test);*/
 
     return;
 }
@@ -71,24 +97,15 @@ static void gpio_isr(void *args)
     rt_interrupt_leave();
 }
 #else
-static int flag = 0;
 
 static void gpio_isr(void *args)
 {
     rt_interrupt_enter();
-
 	
-	//if(rt_current_pm_state() != 1)
+	if(rt_current_pm_state() != 1)
 	{
-		//flag = 1;
 		rt_pm_request(1);
-		//rt_event_send(wakeup_event, 1);
 	}
-	/*if(HAL_GPIO_GetPinLevel(GPIOx, GPIO_PIN_INT) == GPIO_LOW)
-		flag = 1;	*/
-	//rt_pm_request(1);
-    //rt_event_send(wakeup_event, 1);
-
     rt_interrupt_leave();
 }
 
@@ -145,7 +162,7 @@ void gpio_test_interrupt(void *parameter)
         }
     }
 }
-static int a = 1;
+
 static void _timeout_entry(void *parameter)
 {
     rt_kprintf("current tick: %ld\n", rt_tick_get());
@@ -187,7 +204,6 @@ static int timer_app_init(void)
     }
 }
 
-static char rt_thread_stack[2048] = {0};
 
 void gpio_wake(int argc, char **argv)
 {
@@ -208,10 +224,32 @@ void gpio_wake(int argc, char **argv)
 	rt_thread_startup(&gpio_wake);
 }
 
+static int b = 1;
+void led_test(int argc, char **argv)
+{
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_A6, PIN_CONFIG_MUX_FUNC0);
+    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_A6, GPIO_OUT);
+	
+	rt_kprintf("key data is %d\n", HAL_KeyCtrl_GetValue(KEY_CTRL));
+	if(b == 1)
+	{
+		b = 0;
+		HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_A6, 1);
+	}
+	else
+	{
+		b = 1;
+		HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_A6, 0);
+	}
+}
+
+
 #ifdef RT_USING_FINSH
 #include <finsh.h>
 MSH_CMD_EXPORT_ALIAS(timer0_wakeup_init, timer_wakeup, timer wakeup cmd);
 MSH_CMD_EXPORT(gpio_wake, gpio test cmd);
+MSH_CMD_EXPORT(led_test, led_test);
+
 #endif
 
 #endif

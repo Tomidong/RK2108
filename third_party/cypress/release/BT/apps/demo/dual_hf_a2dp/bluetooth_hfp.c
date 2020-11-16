@@ -384,6 +384,12 @@ static void bt_audio_hfp_event_cb(wiced_bt_hfp_hf_event_t event, wiced_bt_hfp_hf
 
 static void bt_audio_sco_data_cback(uint16_t sco_index, BT_HDR *sco_data, uint8_t status)
 {
+	static int a = 1;
+	if(a == 1)
+	{
+		a = 0;
+		WPRINT_APP_INFO(("bt_audio_sco_data_cback tick: %ld\n" ,rt_tick_get()));
+	}	
     bt_audio_codec_data_t *pcm;
     uint16_t *in_buf;
     uint16_t *out_buf;
@@ -684,8 +690,9 @@ static wiced_result_t bt_audio_hfp_button_event_handler(app_service_action_t act
 
 void bt_audio_hfp_sco_connection_evt_handler(wiced_bt_sco_connected_t *connected)
 {
+	WPRINT_APP_INFO(("%s current tick: %ld\n",  __func__, rt_tick_get()));
     WPRINT_APP_INFO(("%s: SCO Audio connected, sco_index = %d [in context sco index=%d]\n", __func__, connected->sco_index, hfp_ctxt_data[hfp_context_index].sco_index));
-    bt_audio_start_loop(BT_AUDIO_DEVICE_RECORDER);
+    bt_audio_start_loop(BT_AUDIO_DEVICE_RECORDER);	
 }
 
 void bt_audio_hfp_sco_disconnection_evt_handler(wiced_bt_sco_disconnected_t *disconnected)
@@ -759,7 +766,7 @@ void bt_audio_hfp_sco_connection_request_evt_handler(wiced_bt_sco_connection_req
             if (use_wbs == TRUE)
             {
                 result = BTM_SetWBSCodec(BTM_SCO_CODEC_MSBC);
-                WPRINT_APP_INFO(("[%s] BTM_SetWBSCodec result = %d\n", __func__, result));
+                WPRINT_APP_INFO(("[%s] BTM_SetWBSCodec result = %d, use_wbs is %d\n", __func__, result, use_wbs));
 
                 /* Specify PCM input for SBC codec in fw */
                 BTM_ConfigI2SPCM(BTM_SCO_CODEC_MSBC,
@@ -777,7 +784,7 @@ void bt_audio_hfp_sco_connection_request_evt_handler(wiced_bt_sco_connection_req
             else
             {
                 result = BTM_SetWBSCodec(BTM_SCO_CODEC_CVSD);
-                WPRINT_APP_INFO(("[%s] BTM_SetWBSCodec result = %d\n", __func__, result));
+                WPRINT_APP_INFO(("[%s] BTM_SetWBSCodec result = %d, use_wbs is %d\n", __func__, result, use_wbs));
 
                 /* Specify PCM input for SBC codec in fw */
                 BTM_ConfigI2SPCM(BTM_SCO_CODEC_CVSD,

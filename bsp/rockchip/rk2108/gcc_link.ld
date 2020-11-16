@@ -4,6 +4,7 @@
 /* RT_USING_CORE_FREERTOS is not set */
 /* RT_THREAD_PRIORITY_8 is not set */
 /* RT_THREAD_PRIORITY_256 is not set */
+/* RT_USING_TIMER_SOFT is not set */
 /* RT_DEBUG_COLOR is not set */
 /* RT_DEBUG_INIT_CONFIG is not set */
 /* RT_DEBUG_USING_GPIO is not set */
@@ -116,9 +117,19 @@
 /* PKG_CMBACKTRACE_FAULT_REBOOT is not set */
 /* PKG_CMBACKTRACE_FAULT_DUMP_TO_FLASH is not set */
 /* RT_USING_LOGTRACE is not set */
-/* RT_USING_RYM is not set */
+/* YMODEM_USING_CRC_TABLE is not set */
 /* RT_USING_RZM is not set */
-/* RT_USING_ULOG is not set */
+/* ULOG_OUTPUT_LVL_A is not set */
+/* ULOG_OUTPUT_LVL_E is not set */
+/* ULOG_OUTPUT_LVL_W is not set */
+/* ULOG_OUTPUT_LVL_I is not set */
+/* ULOG_USING_ASYNC_OUTPUT is not set */
+/* log format */
+/* ULOG_OUTPUT_FLOAT is not set */
+/* ULOG_TIME_USING_TIMESTAMP is not set */
+/* ULOG_OUTPUT_THREAD_NAME is not set */
+/* ULOG_USING_FILTER is not set */
+/* ULOG_USING_SYSLOG is not set */
 /* RT_USING_UTEST is not set */
 /* ARM CMSIS */
 /* RT_USING_CMSIS_OS is not set */
@@ -126,7 +137,10 @@
 /* RT-Thread Benchmarks */
 /* RT_USING_BENCHMARK is not set */
 /* RT_USING_NET_HTTP is not set */
-/* RT_USING_OTA is not set */
+/* OTA Component Options */
+/* RT_USING_OTA_RECOVERY is not set */
+/* RT_USING_OTA_FROM_HTTP is not set */
+/* RT_SUPPORT_ROOT_AB is not set */
 /* RT-Thread third party package */
 /* PKG_CMSIS_RTOS2 is not set */
 /* RT_USING_WLAN_WICED is not set */
@@ -191,9 +205,10 @@
 /* RT_USING_SPINAND is not set */
 /* RT-Thread rockchip rk2108 drivers */
 /* Enable Audio */
-/* RT_USING_DRIVER_AUDIO_PCM_PLUGIN is not set */
+/* PCM Softvol Configuration */
 /* Audio Cards */
-/* RT_USING_ACDCDIG_PDM0_SDI2 is not set */
+/* RT_USING_AUDIO_CARD_ACDCDIG is not set */
+/* RT_USING_AUDIO_CARD_AUDIOPWM is not set */
 /* RT_USING_AUDIO_CARD_I2S_MIC is not set */
 /* RT_USING_AUDIO_CARD_ES7243 is not set */
 /* RT_USING_AUDIO_CARD_ES8156 is not set */
@@ -232,7 +247,30 @@
 /* RT-Thread Common Test case */
 /* RT_USING_TC is not set */
 /* RT_USING_FILE_TEST is not set */
-/* RT_USING_COMMON_TEST is not set */
+/* RT_USING_AUTO_TEST is not set */
+/* RT_USING_COMMON_TEST_SUSPEND is not set */
+/* RT_USING_COMMON_TEST_AUDIO is not set */
+/* RT_USING_COMMON_TEST_CODEC_ES8388 is not set */
+/* RT_USING_COMMON_TEST_CPU_USAGE is not set */
+/* RT_USING_COMMON_TEST_DCACHE is not set */
+/* RT_USING_COMMON_TEST_ICACHE is not set */
+/* RT_USING_COMMON_TEST_DSP is not set */
+/* RT_USING_DSP_OPUS_CODEC_TEST is not set */
+/* RT_USING_COMMON_TEST_GPIO is not set */
+/* RT_USING_COMMON_TEST_I2C is not set */
+/* RT_USING_COMMON_TEST_KEYCTRL is not set */
+/* RT_USING_COMMON_TEST_MBOX is not set */
+/* RT_USING_COMMON_MEMTESTER is not set */
+/* RT_USING_COMMON_TEST_MPU is not set */
+/* RT_USING_COMMON_TEST_PM is not set */
+/* RT_USING_COMMON_TEST_SNOR is not set */
+/* RT_USING_COMMON_TEST_SPI is not set */
+/* RT_USING_COMMON_STRESS_TEST is not set */
+/* RT_USING_COMMON_TEST_UART is not set */
+/* RT_USING_COMMON_TEST_WDT is not set */
+/* RT_USING_COMMON_TEST_PERFORMANCE is not set */
+/* RT_USING_COMMON_TEST_FWANALYSIS is not set */
+/* RT_USING_COMMON_TEST_TIMER is not set */
 MEMORY
 {
     XIP (rx) : ORIGIN = 0x18000000, LENGTH = 16M
@@ -240,7 +278,7 @@ MEMORY
     PSRAM (rxw) : ORIGIN = 0x1C000000, LENGTH = 8M
     DTCM (rxw) : ORIGIN = 0x30200000, LENGTH = 512K
 }
-FW_MAGIC_LEN = 131584;
+FW_MAGIC_LEN = 1180160;
 XIP_DATA_BASE = 0x60000000;
 SRAM_DATA_BASE = 0x20000000;
 PSRAM_DATA_BASE = 0x64000000;

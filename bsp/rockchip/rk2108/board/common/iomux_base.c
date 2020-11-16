@@ -413,6 +413,17 @@ RT_WEAK RT_UNUSED void audio_iomux_config(void)
 }
 
 /**
+ * @brief  Config iomux for AUDIO PWM M1
+ */
+RT_WEAK RT_UNUSED void audio_iomux_config2(void)
+{
+    HAL_PINCTRL_SetIOMUX(GPIO_BANK1,
+                         GPIO_PIN_A4| GPIO_PIN_A5,   // AUDIO_LOUT_M1
+                         PIN_CONFIG_MUX_FUNC5);
+}
+
+
+/**
  * @brief  Config iomux for M4 JTAG
  */
 RT_WEAK RT_UNUSED void m4_jtag_iomux_config(void)
@@ -694,7 +705,8 @@ RT_WEAK RT_UNUSED void rt_hw_iomux_config(void)
 #endif
 
 #ifdef RT_USING_AUDIOPWM
-    audio_iomux_config();
+   // audio_iomux_config();
+    audio_iomux_config2();
 #endif
 #ifdef RT_USING_SPINAND_FSPI_HOST
     sfc1_iomux_config();

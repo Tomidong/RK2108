@@ -461,8 +461,8 @@ err:
     return 1;
 }
 
-//static char name[3][30] = {"/mnt/sdcard/test.wav", "/mnt/sdcard/test2.wav", "/mnt/sdcard/test3.wav"};
-static char name[4][30] = {"/test.wav","/mnt/sdcard/123.wav", "/mnt/sdcard/123.wav", "/mnt/sdcard/123.wav"};
+static char name[3][30] = {"/mnt/sdcard/test2.wav", "/mnt/sdcard/test2.wav", "/mnt/sdcard/test3.wav"};
+//static char name[4][30] = {"/test.wav","/mnt/sdcard/123.wav", "/mnt/sdcard/123.wav", "/mnt/sdcard/123.wav"};
 
 static int id = 0;
 
@@ -571,7 +571,7 @@ void player_state_set(player_type_e data)
 	s_player_state = data;
 }
 
-void player_vol_add()
+int vol_add()
 {
 	snd_softvol_t softvol = {0};
 	
@@ -584,15 +584,28 @@ void player_vol_add()
 		if(vol_l > 100)
 			vol_l = 100;
 	}
-	softvol.vol_l = vol_l;
+	softvol.vol_l = vol_r;
 	softvol.vol_r = vol_r;
-	if(s_card != NULL)
-		rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
 	
+	if(s_card == NULL)
+	{
+		s_card = rt_device_find("audpwmp");
+		if(s_card == NULL)
+		{
+			rt_kprintf("s_card NULL\n");
+			return 0;
+		}
+			
+	}
+	
+	rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
+						
 	rt_kprintf("player_vol_add\n");
+
+	return 0;
 }
 
-void player_vol_sub()
+int vol_sub()
 {
 	snd_softvol_t softvol = {0};
 	if(vol_r > 0)
@@ -607,17 +620,70 @@ void player_vol_sub()
 	softvol.vol_l = vol_l;
 	softvol.vol_r = vol_r;
 
+	if(s_card == NULL)
+	{
+		s_card = rt_device_find("audpwmp");
+		if(s_card == NULL)
+		{
+			rt_kprintf("s_card NULL\n");
+			return 0;
+		}
+			
+	}
+	
+	rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
+	
+	rt_kprintf("player_vol_sub\n");
+
+	return 0;
+}
+
+int vol_set(int argc, char **argv)
+{
+	rt_kprintf("argc is %d\n", argc);
+	if(argc != 2)
+	{
+		rt_kprintf("usage is vol_set xx\n");
+		return 0;
+	}
+	
+	snd_softvol_t softvol = {0};
+	unsigned short data = atoi(argv[1]);
+
+	printf("data is %d\n", data);
+	if(data >= 0 && data <= 100)
+	{
+		vol_l = data;
+		vol_r = data;
+	}
+	else
+	{
+		rt_kprintf("vol range error[0-100], %d\n", data);
+		return 0;
+	}
+
+	softvol.vol_l = vol_l;
+	softvol.vol_r = vol_r;
+
 	if(s_card != NULL)
 		rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
 	
-	rt_kprintf("player_vol_sub\n");
+	return 1;
 }
+extern int dfs_mount(const char   *device_name,
+              const char   *path,
+              const char   *filesystemtype,
+              unsigned long rwflag,
+              const void   *data);
+
 
 #ifdef RT_USING_FINSH
 #include <finsh.h>
 MSH_CMD_EXPORT(tinyplay, play wav file);
 MSH_CMD_EXPORT(tinyplay_audio, play wav file);
-
+MSH_CMD_EXPORT(vol_add, add volume);
+MSH_CMD_EXPORT(vol_sub, sub volume);
+MSH_CMD_EXPORT(vol_set, set volume);
 #endif
 
 #endif

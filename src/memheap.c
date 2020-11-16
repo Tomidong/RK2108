@@ -152,6 +152,8 @@ void *rt_memheap_alloc(struct rt_memheap *heap, rt_uint32_t size)
     RT_DEBUG_LOG(RT_DEBUG_MEMHEAP, ("allocate %d on heap:%8.*s",
                                     size, RT_NAME_MAX, heap->parent.name));
 
+	rt_kprintf("heap->available_size is %d, size is %d\n", heap->available_size, size);
+	
     if (size < heap->available_size)
     {
         /* search on free list */
@@ -178,7 +180,8 @@ void *rt_memheap_alloc(struct rt_memheap *heap, rt_uint32_t size)
                 header_ptr = header_ptr->next_free;
             }
         }
-
+		
+		
         /* determine if the memory is available. */
         if (free_size >= size)
         {

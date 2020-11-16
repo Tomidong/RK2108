@@ -60,7 +60,7 @@
 #ifdef DBG_ENABLE
 
 #ifndef DBG_LEVEL
-#define DBG_LEVEL         DBG_WARNING
+#define DBG_LEVEL         DBG_LOG
 #endif
 
 /*

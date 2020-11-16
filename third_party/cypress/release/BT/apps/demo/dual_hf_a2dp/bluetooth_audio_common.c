@@ -114,7 +114,7 @@ wiced_result_t bt_audio_configure_device(bt_audio_config_t *p_audio_config, bt_a
     platform_audio_device_id_t recorder_dev_id  = 0xaaaa; //PLATFORM_DEFAULT_AUDIO_INPUT;
 
     WPRINT_APP_INFO(("bt_audio_configure_device: device = %d\n", device_type));
-
+	//WPRINT_APP_INFO(("%s current1 tick: %ld\n", __func__, rt_tick_get()));
     if (p_audio_config == NULL)
         return WICED_BADARG;
 
@@ -137,7 +137,7 @@ wiced_result_t bt_audio_configure_device(bt_audio_config_t *p_audio_config, bt_a
     WPRINT_APP_INFO(("bt_audio_configure_device: device_type %d, config sample_rate:%u channels:%d bps:%d\n",
                      (unsigned int) device_type, (unsigned int) device->bluetooth_audio_config.sample_rate,
                      (int)device->bluetooth_audio_config.channels, (int)device->bluetooth_audio_config.bits_per_sample));
-
+	WPRINT_APP_INFO(("%s current1 tick: %ld\n", __func__, rt_tick_get()));
     wiced_audio_conf.sample_rate     = device->bluetooth_audio_config.sample_rate;
     wiced_audio_conf.channels        = device->bluetooth_audio_config.channels;
     wiced_audio_conf.bits_per_sample = device->bluetooth_audio_config.bits_per_sample;
@@ -150,11 +150,11 @@ wiced_result_t bt_audio_configure_device(bt_audio_config_t *p_audio_config, bt_a
         return result;
     }
     device->state = BT_AUDIO_DEVICE_STATE_CONFIGURED;
-
+	WPRINT_APP_INFO(("%s current1 tick: %ld\n", __func__, rt_tick_get()));
     //Set the default volume if player
     if (device_type == BT_AUDIO_DEVICE_PLAYER)
         result = bt_audio_update_player_volume(device->bluetooth_audio_config.volume);
-
+	WPRINT_APP_INFO(("%s current1 tick: %ld\n", __func__, rt_tick_get()));
 
     UNUSED_PARAMETER(service_type);
 

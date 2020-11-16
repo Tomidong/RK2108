@@ -67,4 +67,6 @@
 #define ES8311_CHD1_REGFD           0xFD /* CHIP ID1 */
 #define ES8311_MAX_REGISTER         0xFF
 
+int rt_hw_codec_es8311_init(void);
+
 #endif /* __ES8311_H__ */

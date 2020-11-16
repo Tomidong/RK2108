@@ -1,4 +1,5 @@
 
+
 #include <rtthread.h>
 #include <rthw.h>
 
@@ -8,7 +9,7 @@
 #include <sys/time.h>
 #include <dfs_posix.h>
 #include <dfs_select.h>
-#include <termios.h>
+//#include <termios.h>
 #include "drv_gpio.h"
 #include "drv_heap.h"
 #include "hal_base.h"
@@ -17,6 +18,11 @@
 #include "drv_keyctrl.h"
 #include "rk_audio.h"
 #include "blsx.h"
+
+#define LOG_TAG "blxs"
+#define LOG_LVL LOG_LVL_DBG
+
+#include <ulog.h>
 
 
 #define RT_TIMER_THREAD_STACK_SIZE 1024*2
@@ -37,8 +43,8 @@ extern void app_record_control(int num);
 extern void app_player_control(int num);
 extern void capture_state_set(record_type_e data); //录音时的控制函数
 extern void player_state_set(player_type_e data);	//播放时的控制函数
-extern void player_vol_sub();		
-extern void player_vol_add();
+extern int vol_sub();		
+extern int vol_add();
 
 
 //功放(静音)控制函数，eg: falg为真，静音；反之不静音。
@@ -80,7 +86,7 @@ void app_led_control(led_state_e led_state)
 			break;
 			
 		default:
-			rt_printf("app_led_control error\n");
+			LOG_E("app_led_control error");
 			break;
 	}
 	//rt_printf("ret is %d\n", 1&(~ret));
@@ -92,12 +98,12 @@ static void app_key_doing(char num)
 {
 	cmd_type data = 0;
 	
-	//rt_printf("num is %d\n", num);
-	
+	rt_printf("num is %d\n", num);
+
+	//短按是1-4，长按是8-11
 	if(num == 0x1)
 	{		
-		data = TYPE_POWER;	
-		 
+		data = TYPE_POWER;			 
 	}
 	else if(num == 0x2)
 	{
@@ -110,6 +116,22 @@ static void app_key_doing(char num)
 	else  if(num == 0x4)
 	{
 		data = TYPE_VOL_ADD;
+	}
+	else  if(num == 0x8)
+	{
+		data = 8;
+	}
+	else  if(num == 0x9)
+	{
+		data = 9;
+	}
+	else  if(num == 0xa)
+	{
+		data = 10;
+	}
+	else  if(num == 0xb)
+	{
+		data = 11;
 	}
 	else
 	{
@@ -139,7 +161,7 @@ static rt_err_t app_key_read_data_cb(rt_device_t dev, rt_size_t size)
         else
         {
             ret = rt_get_errno();
-            rt_printf("dev : %s read error %d\n", dev->parent.name, ret);
+            LOG_E("dev : %s read error %d", dev->parent.name, ret);
         }
     }
 
@@ -164,7 +186,7 @@ static int app_key_open_device(char * pcName)
 	result = rt_device_control(keyctrl_dev, RT_KEYCTRL_CTRL_GET_INFO, &info);
     if (result != RT_EOK)
     {
-        rt_printf("device : %s cmd RT_KEYCTRL_CTRL_GET_INFO failed\n",
+        LOG_E("device : %s cmd RT_KEYCTRL_CTRL_GET_INFO failed\n",
                    keyctrl_dev->parent.name);
         return result;
     }
@@ -172,7 +194,7 @@ static int app_key_open_device(char * pcName)
 	result = rt_device_init(keyctrl_dev);
     if (result != RT_EOK)
     {
-        rt_printf("To initialize device:%s failed. The error code is %d\n",
+        LOG_E("To initialize device:%s failed. The error code is %d\n",
                    keyctrl_dev->parent.name, result);
         return result;
     }
@@ -180,7 +202,7 @@ static int app_key_open_device(char * pcName)
     result = rt_device_open(keyctrl_dev, RT_DEVICE_FLAG_RDWR | RT_DEVICE_FLAG_INT_RX);
     if (result != RT_EOK)
     {
-        rt_printf("To open device:%s failed. The error code is %d\n",
+        LOG_E("To open device:%s failed. The error code is %d\n",
                    keyctrl_dev->parent.name, result);
         return result;
     }
@@ -190,107 +212,6 @@ static int app_key_open_device(char * pcName)
 
     return RT_EOK;
 	
-}
-
-
-
-int app_bt_send_data(char *data, int len)
-{
-	if(data == NULL)
-	{
-		rt_printf("input param error!\n");
-		return RT_ERROR;
-	}
-	if(s_bt_fd < 0)
-	{
-		s_bt_fd = open(BT_UART_NAME1, O_RDWR | O_NOCTTY | O_NONBLOCK, 0);
-	    if (s_bt_fd == -1)
-	    {
-	        rt_printf("Open %s fail.\n", BT_UART_NAME1);
-	        return RT_ERROR;
-	    }
-	    else
-	    {
-	        rt_printf("Open %s success,fd:%d\n", BT_UART_NAME1, s_bt_fd);
-	    }
-	}
-	
-	write(s_bt_fd, data, len);
-
-	return RT_EOK;
-}
-
-int app_bt_recv_data(char *data, int *len)
-{
-	int ret = 0;
-	struct timeval t; 
-	fd_set readSet;
-	//rt_size_t drv_recved = 0;
-	char temp_buf[256] = {0};
-	
-	if(data == NULL || len == NULL)
-	{
-		rt_printf("input param error!\n");
-		return RT_ERROR;
-	}
-	if(s_bt_fd < 0)
-	{
-		s_bt_fd = open(BT_UART_NAME1, O_RDWR | O_NOCTTY | O_NONBLOCK, 0);
-	    if (s_bt_fd == -1)
-	    {
-	        rt_printf("Open %s fail.\n", BT_UART_NAME1);
-	        return RT_ERROR;
-	    }
-	    else
-	    {
-	        rt_printf("Open %s success,fd:%d\n", BT_UART_NAME1, s_bt_fd);
-	    }
-	}
-
-	t.tv_sec = 1;
-    t.tv_usec = 0;
-
-	FD_ZERO(&readSet);
-    FD_SET(s_bt_fd, &readSet);
-
-	ret = select(s_bt_fd + 1, &readSet, RT_NULL, RT_NULL, &t);
-    if (ret < 0)
-    {
-        rt_kprintf("select error %d\n", ret);
-        return RT_ERROR;
-    }
-    else if (ret == 0)
-    {
-        /* timeout */
-        rt_printf("read timeout");
-		return RT_ERROR;
-    }
-    else
-    {
-        if (FD_ISSET(s_bt_fd, &readSet))
-        {
-            
-            //ioctl(s_bt_fd, FIONREAD, &drv_recved);
-
-            /* check poll and ioctl */
-            //RT_ASSERT(drv_recved != 0);
-
-            //drv_recved = (drv_recved > len ? len : drv_recved);
-            if((ret = read(s_bt_fd, temp_buf, sizeof(temp_buf))) > 0)
-            {
-            	rt_printf("recv data is %s\n", temp_buf);
-            	memcpy(data, temp_buf, ret);
-				*len = ret;
-            }
-			else 
-			{
-				rt_printf("read data error");
-				return RT_ERROR;
-			}
-        }
-    }
-
-	return RT_EOK;
 }
 
 static void app_gpio_init()
@@ -321,6 +242,32 @@ static void app_gpio_init()
 	
 }
 
+static void wakeup_isr(void *args)
+{
+    rt_interrupt_enter();
+	
+	if(rt_current_pm_state() != 1)
+	{
+		rt_pm_request(1);
+	}
+    rt_interrupt_leave();
+}
+
+void gpio_interrupt_init(void)
+{
+    rt_err_t ret;
+    struct GPIO_REG *gpio = GPIO0;
+
+    HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_D2, PIN_CONFIG_MUX_FUNC0);
+    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_D2, GPIO_IN);
+    ret = rt_pin_attach_irq(BANK_PIN(GPIO_BANK0, 26), PIN_IRQ_MODE_RISING_FALLING, wakeup_isr, "wakeup_isr");
+    RT_ASSERT(ret == RT_EOK);
+    ret = rt_pin_irq_enable(BANK_PIN(GPIO_BANK0, 26),  PIN_IRQ_ENABLE);
+    RT_ASSERT(ret == RT_EOK);
+
+    gpio->INT_EN_L = 0x02000200;
+}
+
 
 void wdg_keepalive(void)
 {
@@ -343,7 +290,7 @@ void app_wdt_init()
 	/* 设置看门狗溢出时间 */
 	rt_device_control(wdg_dev, RT_DEVICE_CTRL_WDT_SET_TIMEOUT, (void *)timeout);
 
-	//rt_device_control(wdg_dev, RT_DEVICE_CTRL_WDT_START, &type);
+	rt_device_control(wdg_dev, RT_DEVICE_CTRL_WDT_START, &type);
 	
 	/* 设置空闲线程回调函数 */
 	rt_thread_idle_sethook(wdg_keepalive);
@@ -365,20 +312,22 @@ static void app_thread_entry(void *parameter)
 	//打开看门狗
 	app_wdt_init();
 	
-	//system("mkdir /123");
-	//system("mkdir /123/123");
+	//if (access(RT_SDCARD_MOUNT_POINT, F_OK) < 0)
+	//	mkdir(RT_SDCARD_MOUNT_POINT, 0);
 	
     /* 初始化事件对象 */
     rt_event_init(&event, "event", RT_IPC_FLAG_FIFO);
 	
-	rt_printf("hello world!, %s\n", __func__);
+	LOG_I("hello world!, %s\n", __func__);
 	
 	//application_start();
 	
     while (1)
     {
-    	rt_thread_mdelay(500);
-    	#if 0
+    	//rt_thread_mdelay(1000);
+		//rt_printf("hello world123!, %s\n", __func__);
+		//rt_kprintf("current tick: %ld\n", rt_tick_get());
+    	#if 1
     	//等待消息
 		rt_event_recv(&event, TYPE_POWER|TYPE_RECORD|TYPE_MUTE|TYPE_VOL_ADD|TYPE_VOL_SUB,
 						RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
@@ -387,7 +336,7 @@ static void app_thread_entry(void *parameter)
 		switch(ret)
 		{
 			case TYPE_POWER:
-				rt_printf("power control\r\n");
+				LOG_D("power control");
 				//tinyplay_audio();
 				app_led_control(2);
 				//tinycap_audio();
@@ -395,34 +344,46 @@ static void app_thread_entry(void *parameter)
 				break;
 
 			case TYPE_RECORD:
-				rt_printf("record control\r\n");
+				LOG_D("record control");
 				//tinycap_audio();
 				//tinyplay_audio();
-				//app_led_control(1);
+				app_led_control(1);
 				//rt_pm_release(1);
 				break;
 
 			case TYPE_MUTE:
-				rt_printf("mute control play\r\n");
+				LOG_D("mute control play");
 				//tinyplay_audio();
 				//app_mute_control(1);
-				//app_led_control(2);
+				app_led_control(3);
 				//player_vol_add();		
 				break;
 
 			case TYPE_VOL_ADD:
-				rt_printf("add vol control\r\n");
+				LOG_D("add vol control");
 				//player_vol_add();
 				//player_vol_sub();
 				break;
 			
 			case TYPE_VOL_SUB:
-				rt_printf("sub vol control\r\n");
+				LOG_D("sub vol control");
 				//player_vol_sub();
+				break;
+			
+			case 8:
+				break;
+				
+			case 9:
+				break;
+				
+			case 10:
+				break;
+				
+			case 11:
 				break;
 				
 			default:
-				rt_printf("have not this select\r\n");
+				LOG_E("have not this select");
 				break;
 		}		
 		
@@ -432,14 +393,19 @@ static void app_thread_entry(void *parameter)
 
 static void app_thread_entry2(void *parameter)
 {
-	int i = 0;
+	int i = 0, ret = 0;
 
 	for(i = 0; i < 10; i++)
 	{
 		rt_thread_mdelay(1000);
-		if(rt_hw_codec_es8311_init() == RT_EOK)
+		if((ret = rt_hw_codec_es8311_init()) == RT_EOK)
 		{
-			rt_printf("es8311 init suc, count is %d\n", i+1);
+			LOG_I("es8311 init suc, count is %d\n", i+1);
+			break;
+		}
+		else if(ret == -1)
+		{
+			LOG_I("es8311 already init\n");
 			break;
 		}
 			
@@ -448,10 +414,12 @@ static void app_thread_entry2(void *parameter)
 	rt_thread_mdelay(10);
 	rk_snd_card_init();
 	rt_thread_mdelay(10);
-	application_start();
+
+	//蓝牙初始化
+	//application_start();
 	//system("bt");
 
-	rt_printf("application_start init suc!\n");
+	LOG_I("application_start init suc!\n");
 }
 
 
@@ -483,25 +451,45 @@ void app_thread_init(void)
 		
     /* startup */
     rt_thread_startup(&app);
-	rt_thread_startup(&app2);
+	//rt_thread_startup(&app2);
 	
-	rt_printf("create task suc! \r\n");
+	LOG_I("create task suc! \r\n");
 	
 }
 
-extern int rt_hw_codec_es8311_init(void);
+void sd_mount()
+{
+    while (1)
+    {
+        rt_thread_mdelay(5000);
+        if(rt_device_find("root") != RT_NULL)
+        {
+            if (dfs_mount("root", "/", "elm", 0, 0) == RT_EOK)
+            {
+                LOG_I("root mount to '/'");
+                break;
+            }
+            else
+            {
+                LOG_W("root mount to '/' failed!");
+            }
+        }
+    }
+}
+
+
 void blsx_entry()
 {
 	//i/o初始化		
-	//app_gpio_init();
+	app_gpio_init();
+
+	//gpio_interrupt_init();
 
 	//rt_hw_gpio_init();
 	
 	//创建线程
 	app_thread_init();
-
-	//rt_hw_codec_es8311_init();
-
+	//sd_mount();
 }
 
 
