@@ -258,18 +258,43 @@ RT_WEAK RT_UNUSED void sdio_iomux_config(void)
     HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_A4, GPIO_HIGH);
 }
 
+RT_WEAK RT_UNUSED void sdio_iomux_config2(void)
+{
+    HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
+                         GPIO_PIN_C0 |  // SDIO_CLK
+                         GPIO_PIN_C1 |  // SDIO_CMD
+                         //GPIO_PIN_C3 |
+                         GPIO_PIN_C2,  // SDIO_D0
+                         PIN_CONFIG_MUX_FUNC4);
+
+	/*HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
+                         GPIO_PIN_C3,
+                         PIN_CONFIG_MUX_FUNC4);*/
+
+    HAL_PINCTRL_SetParam(GPIO_BANK0,
+                         GPIO_PIN_C1 |  // SDIO_CMD
+                         GPIO_PIN_C2,  // SDIO_D0
+                         PIN_CONFIG_PUL_UP |
+                         PIN_CONFIG_DRV_LEVEL4);
+	
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK1, GPIO_PIN_A4, PIN_CONFIG_PUL_UP);
+    HAL_GPIO_SetPinDirection(GPIO1, GPIO_PIN_A4, GPIO_OUT);
+    HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_A4, GPIO_HIGH);
+}
+
+
 /**
  * @brief  Config iomux for DSP JTAG
  */
 RT_WEAK RT_UNUSED void dsp_jtag_iomux_config(void)
-{
+{/*
     HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
                          GPIO_PIN_C0 |  // DSP_JTAG0_TCK
                          GPIO_PIN_C1 |  // DSP_JTAG0_TMS
                          GPIO_PIN_C2 |  // DSP_JTAG0_TDI
                          GPIO_PIN_C3 |  // DSP_JTAG0_TRSTN
                          GPIO_PIN_C4,   // DSP_JTAG0_TDO
-                         PIN_CONFIG_MUX_FUNC3);
+                         PIN_CONFIG_MUX_FUNC3);*/
 }
 
 /**
@@ -408,7 +433,8 @@ RT_WEAK RT_UNUSED void uart1_m3_iomux_config(void)
 RT_WEAK RT_UNUSED void audio_iomux_config(void)
 {
     HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
-                         GPIO_PIN_D1,   // AUDIO_LOUT_M0
+                         GPIO_PIN_D1 |  // AUDIO_LOUT_M0
+                         GPIO_PIN_D2,
                          PIN_CONFIG_MUX_FUNC3);
 }
 
@@ -457,12 +483,12 @@ RT_WEAK RT_UNUSED void sfc1_iomux_config(void)
  */
 RT_WEAK RT_UNUSED void spi1_m0_iomux_config(void)
 {
-    HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
+   /* HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
                          GPIO_PIN_C2 |  // SPI_MST1_CS_M0
                          GPIO_PIN_C3 |  // SPI_MST1_CLK_M0
                          GPIO_PIN_C4 |  // SPI_MST1_MISO_M0
                          GPIO_PIN_C5,   // SPI_MST1_MOSI_M0
-                         PIN_CONFIG_MUX_FUNC1);
+                         PIN_CONFIG_MUX_FUNC1);*/
 
     /* set SPI master 1 IOMUX selection to M0 */
     WRITE_REG_MASK_WE(GRF->SOC_CON5,
@@ -587,8 +613,8 @@ RT_WEAK RT_UNUSED void i2c0_m2_iomux_config(void)
 RT_WEAK RT_UNUSED void i2c1_m0_iomux_config(void)
 {
     HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
-                         GPIO_PIN_C2 |  // I2C_MST1_SCL_M0
-                         GPIO_PIN_C3,   // I2C_MST1_SDA_M0
+                         GPIO_PIN_C2 ,  // I2C_MST1_SCL_M0
+                         //GPIO_PIN_C3,   // I2C_MST1_SDA_M0
                          PIN_CONFIG_MUX_FUNC2);
 
     WRITE_REG_MASK_WE(GRF->SOC_CON5,
@@ -671,7 +697,8 @@ RT_WEAK RT_UNUSED void rt_hw_iomux_config(void)
 #ifdef DSP_JTAG_ENABLE
     dsp_jtag_iomux_config();
 #else
-    sdio_iomux_config();
+    //sdio_iomux_config();
+	sdio_iomux_config2();
 #endif
 
     uart2_iomux_config();
@@ -701,12 +728,12 @@ RT_WEAK RT_UNUSED void rt_hw_iomux_config(void)
 #endif
 
 #ifdef RT_USING_QPIPSRAM_SPI_HOST
-    spi1_m0_iomux_config();
+    //spi1_m0_iomux_config();
 #endif
 
 #ifdef RT_USING_AUDIOPWM
-   // audio_iomux_config();
-    audio_iomux_config2();
+    audio_iomux_config(); //demo
+    //audio_iomux_config2();
 #endif
 #ifdef RT_USING_SPINAND_FSPI_HOST
     sfc1_iomux_config();

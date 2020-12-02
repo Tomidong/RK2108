@@ -513,12 +513,72 @@ err:
     return 1;
 }
 
+//----------------------------------------------------
+struct rt_device *card = NULL;
+
+int test()
+{
+	struct AUDIO_GAIN_INFO info;
+	struct AUDIO_DB_CONFIG db_config;
+	int ret ;
+	
+	if(card == NULL)
+	{
+		card = rt_device_find("adcc");
+		if (!card)
+	    {
+	        rt_kprintf("Can't find sound device: %s\n", "adcc");
+	        return 1;
+	    }
+	}
+
+	rt_device_open(card, RT_DEVICE_OFLAG_RDONLY);
+
+	ret = rt_device_control(card, RK_AUDIO_CTL_GET_GAIN_INFO, &info);
+    if (ret != RT_EOK)
+    {
+        rt_kprintf("fail to get gain info\n");
+        return -RT_ERROR;
+    }
+	rt_kprintf("maxdB %d, mindB %d, step %d\n", info.maxdB, info.mindB, info.step);
+
+    ret = rt_device_control(card, RK_AUDIO_CTL_GET_GAIN, &db_config);
+    if (ret != RT_EOK)
+    {
+        rt_kprintf("fail to get gain\n");
+        return -RT_ERROR;
+    }
+	rt_kprintf("db %d, ch %d\n", db_config.dB, db_config.ch);
+    //db_config.dB = info.mindB + volume * (info.maxdB - info.mindB) / 100;
+    //db_config.dB = db_config.dB - db_config.dB % info.step;
+    //rt_kprintf("db_config.dB = %d\n", db_config.dB);
+
+	rt_device_close(card);
+	return 0;
+}
+
+void gb_set()
+{
+	struct AUDIO_DB_CONFIG db_config;
+	
+	rt_device_open(card, RT_DEVICE_OFLAG_RDONLY);
+	rt_device_control(card, RK_AUDIO_CTL_GET_GAIN, &db_config);
+
+	db_config.dB = 37500;
+	rt_device_control(card, RK_AUDIO_CTL_SET_GAIN, &db_config);
+
+	rt_device_close(card);
+}
+
 
 #ifdef RT_USING_FINSH
 #include <finsh.h>
 MSH_CMD_EXPORT(tinycap, capture wav file);
 MSH_CMD_EXPORT(tinycap_audio, capture wav file);
 MSH_CMD_EXPORT(capture_state_set1, capture wav file);
+MSH_CMD_EXPORT(test, test);
+MSH_CMD_EXPORT(gb_set, gb_set);
+
 #endif
 
 #endif

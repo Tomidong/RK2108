@@ -75,10 +75,12 @@ static void rt_init_thread_entry(void *parameter)
     if (fw_slot_get_current_running(&boot_slot) != 0)
         return;
 	
+	fw_slot_set_active(boot_slot);
+	
     if (boot_slot == 0)
     {
         rt_kprintf("%s: running slot A Fw.\n", __func__);
-        fw_slot_set_active(boot_slot);
+        //fw_slot_set_active(boot_slot);
 
 #if 0
         rt_thread_delay(10000);
@@ -89,6 +91,10 @@ static void rt_init_thread_entry(void *parameter)
         ota_test_loop(0, NULL);
 #endif
     }
+	else if(boot_slot == 1)
+	{
+		rt_kprintf("%s: running slot B Fw.\n", __func__);
+	}
 #ifdef RT_USING_OTA_RECOVERY
     if (boot_slot == 1)
     {

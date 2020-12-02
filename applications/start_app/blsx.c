@@ -24,6 +24,11 @@
 
 #include <ulog.h>
 
+/*#define LOG_E(...)            0       
+#define LOG_W(...)             0      
+#define LOG_I(...)              0   
+#define LOG_D(...)               0   */  
+    
 
 #define RT_TIMER_THREAD_STACK_SIZE 1024*2
 
@@ -33,16 +38,14 @@ static rt_device_t wdg_dev;    /* 看门狗设备句柄 */
 static int s_bt_fd = -1;	//蓝牙串口通信的描述符
 
 static rt_uint8_t rt_thread_stack[RT_TIMER_THREAD_STACK_SIZE];
-static rt_uint8_t rt_thread_stack2[RT_TIMER_THREAD_STACK_SIZE];
+//static rt_uint8_t rt_thread_stack2[RT_TIMER_THREAD_STACK_SIZE];
 
 static struct rt_event event;
 
 extern int tinyplay_audio();	//开始录音的函数(文件的路径暂时被写死了)
 extern int tinycap_audio();		//开始播放的函数(文件的路径在那时被写死了)
-extern void app_record_control(int num); 
-extern void app_player_control(int num);
-extern void capture_state_set(record_type_e data); //录音时的控制函数
-extern void player_state_set(player_type_e data);	//播放时的控制函数
+//extern void capture_state_set(record_type_e data); //录音时的控制函数
+//extern void player_state_set(player_type_e data);	//播放时的控制函数
 extern int vol_sub();		
 extern int vol_add();
 
@@ -61,35 +64,78 @@ void app_mute_control(mute_e flag)
 }
 
 //3个LED灯的控制
-void app_led_control(led_state_e led_state)
+void app_led_control(led_state_e led_state, led_ctr_e led_ctr)
 {
 	int ret = 0;
-		
+
 	switch(led_state)
 	{
 		case LED_RECORD:
-			ret = HAL_GPIO_GetPinData(GPIO0, GPIO_PIN_A6);
-			HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_A6, 1&(~ret));
-			
-			//ret = HAL_GPIO_GetPinData(GPIO0, GPIO_PIN_D2);
-			//HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_D2, 1&(~ret));
+			HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_B0, PIN_CONFIG_MUX_FUNC0);
+			HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_B0, GPIO_OUT);
+			ret = HAL_GPIO_GetPinData(GPIO0, GPIO_PIN_B0); //red 1
+			if(led_ctr == LED_NEGAT)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_B0, 1&(~ret));
+			else if(led_ctr == LED_CLOSE)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_B0, 1);
+			else if(led_ctr == LED_OPEN)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_B0, 0);
 			break;
 			
 		case LED_MUTE:
-			ret = HAL_GPIO_GetPinData(GPIO0, GPIO_PIN_A7);
-			HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_A7, 1&(~ret));
+			HAL_PINCTRL_SetIOMUX(GPIO_BANK1, GPIO_PIN_D0, PIN_CONFIG_MUX_FUNC0);
+			HAL_GPIO_SetPinDirection(GPIO1, GPIO_PIN_D0, GPIO_OUT);
+			ret = HAL_GPIO_GetPinData(GPIO1, GPIO_PIN_D0); //red
+			if(led_ctr == LED_NEGAT)
+				HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_D0, 1&(~ret));
+			else if(led_ctr == LED_CLOSE)
+				HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_D0, 1);
+			else if(led_ctr == LED_OPEN)
+				HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_D0, 0);
 			break;
 			
-		case LED_BT_CONNECT:
-			ret = HAL_GPIO_GetPinData(GPIO0, GPIO_PIN_B0);
-			HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_B0, 1&(~ret));
+		case LED_BATTERY:
+			HAL_PINCTRL_SetIOMUX(GPIO_BANK1, GPIO_PIN_A7, PIN_CONFIG_MUX_FUNC0);
+			HAL_GPIO_SetPinDirection(GPIO1, GPIO_PIN_A7, GPIO_OUT);
+			ret = HAL_GPIO_GetPinData(GPIO1, GPIO_PIN_A7); //red 1
+			if(led_ctr == LED_NEGAT)
+				HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_A7, 1&(~ret));
+			else if(led_ctr == LED_CLOSE)
+				HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_A7, 0);
+			else if(led_ctr == LED_OPEN)
+				HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_A7, 1);
+			break;
+
+		case LED_BT_PAIR:
+			HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_D7, PIN_CONFIG_MUX_FUNC0);
+			HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_D7, GPIO_OUT);
+			ret = HAL_GPIO_GetPinData(GPIO0, GPIO_PIN_D7); //blue 1
+			if(led_ctr == LED_NEGAT)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_D7, 1&(~ret));
+			else if(led_ctr == LED_CLOSE)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_D7, 1);
+			else if(led_ctr == LED_OPEN)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_D7, 0);
+			break;
+
+		case 5: //暂时没用
+			HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_C3, PIN_CONFIG_MUX_FUNC0);
+			HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_C3, GPIO_OUT);
+			ret = HAL_GPIO_GetPinData(GPIO0, GPIO_PIN_C3); //blue
+			HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_C3, 1&(~ret));
+			if(led_ctr == LED_NEGAT)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_C3, 1&(~ret));
+			else if(led_ctr == LED_CLOSE)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_C3, 1);
+			else if(led_ctr == LED_OPEN)
+				HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_C3, 0);
 			break;
 			
 		default:
 			LOG_E("app_led_control error");
 			break;
 	}
-	//rt_printf("ret is %d\n", 1&(~ret));
+	//rt_printf("ret is %d\n", ret);
 }
 
 
@@ -98,16 +144,16 @@ static void app_key_doing(char num)
 {
 	cmd_type data = 0;
 	
-	rt_printf("num is %d\n", num);
+	//rt_printf("num is %d\n", num);
 
 	//短按是1-4，长按是8-11
 	if(num == 0x1)
 	{		
-		data = TYPE_POWER;			 
+		data = TYPE_VOL_ADD;			 
 	}
 	else if(num == 0x2)
 	{
-		data = TYPE_RECORD;
+		data = TYPE_VOL_SUB;
 	}
 	else  if(num == 0x3)
 	{
@@ -115,7 +161,7 @@ static void app_key_doing(char num)
 	}
 	else  if(num == 0x4)
 	{
-		data = TYPE_VOL_ADD;
+		data = TYPE_RECORD;
 	}
 	else  if(num == 0x8)
 	{
@@ -214,31 +260,36 @@ static int app_key_open_device(char * pcName)
 	
 }
 
+//（默认是点亮的，设置低电平就是点亮，高电平就是熄灭）
 static void app_gpio_init()
 {
-	//红灯（默认是点亮的，设置低电平就是点亮，高电平就是熄灭）
-	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_A6, PIN_CONFIG_MUX_FUNC0);
-    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_A6, GPIO_OUT);
-	//HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_A6, 1);
-    //红灯
-	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_A7, PIN_CONFIG_MUX_FUNC0);
-    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_A7, GPIO_OUT);
-	HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_A7, 1);
-	//HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_A7, GPIO_IN);
+	//红灯 录音状态：录音中（灯亮），录音停止（灯灭）
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_B0, PIN_CONFIG_MUX_FUNC0);
+    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_B0, GPIO_OUT);
+	HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_B0, 1);
+    //红灯 充电灯，充电中亮灯，冲完灭灯 (这个高电平亮灯，低电平灭灯)
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK1, GPIO_PIN_A7, PIN_CONFIG_MUX_FUNC0);
+    HAL_GPIO_SetPinDirection(GPIO1, GPIO_PIN_A7, GPIO_OUT);
+	//HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_A7, 1);
 	
-	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_D2, PIN_CONFIG_MUX_FUNC0);
-    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_D2, GPIO_OUT);
-	HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_D2, 1);
+	//红灯 Mute状态：Mute禁音（灯亮），Mute取消（灯灭）	
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK1, GPIO_PIN_D0, PIN_CONFIG_MUX_FUNC0);
+    HAL_GPIO_SetPinDirection(GPIO1, GPIO_PIN_D0, GPIO_OUT);
+	HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_D0, 1);
 	
-	//功放引脚
+	//功放引脚 
 	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_B1, PIN_CONFIG_MUX_FUNC0);
     HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_B1, GPIO_OUT);
 
-	//双色的红蓝灯
-	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_B0, PIN_CONFIG_MUX_FUNC0); //蓝灯
-    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_B0, GPIO_OUT);
-	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_D2, PIN_CONFIG_MUX_FUNC0); //红灯
-	HAL_GPIO_SetPinDirection(GPIO_BANK0, GPIO_PIN_D2, GPIO_OUT);
+	//蓝灯 蓝牙配对状态灯：配对中（闪烁200mS），配对成功(灭灯）
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_D7, PIN_CONFIG_MUX_FUNC0); 
+    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_D7, GPIO_OUT);
+	HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_D7, 1);
+
+	//蓝灯 开机与USB连接状态：开机中与USB连接（灯亮），关机及断开USB连接（灯灭）
+	/*HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_C3, PIN_CONFIG_MUX_FUNC0);
+	HAL_GPIO_SetPinDirection(GPIO_BANK0, GPIO_PIN_C3, GPIO_OUT);
+	HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_C3, 0);*/
 	
 }
 
@@ -304,7 +355,7 @@ extern int rt_hw_codec_es8311_init(void);
 static void app_thread_entry(void *parameter)
 {
 	
-	uint32_t ret = -1;
+	uint32_t ret = -1, i = 0;
 
 	//打开按键检测
 	app_key_open_device("keyctrl");	
@@ -317,6 +368,31 @@ static void app_thread_entry(void *parameter)
 	
     /* 初始化事件对象 */
     rt_event_init(&event, "event", RT_IPC_FLAG_FIFO);
+
+	/*for(i = 0; i < 10; i++)
+	{
+		rt_thread_mdelay(1000);
+		if((ret = rt_hw_codec_es8311_init()) == RT_EOK)
+		{
+			LOG_I("es8311 init suc, count is %d\n", i+1);
+			break;
+		}
+		else if(ret == -1)
+		{
+			LOG_I("es8311 already init\n");
+			break;
+		}
+			
+	}*/
+	
+	rt_thread_mdelay(10);
+	rk_snd_card_init();
+	rt_thread_mdelay(10);
+
+	//蓝牙初始化并打开
+	//application_start();
+
+	app_gpio_init();
 	
 	LOG_I("hello world!, %s\n", __func__);
 	
@@ -324,9 +400,9 @@ static void app_thread_entry(void *parameter)
 	
     while (1)
     {
+    	
     	//rt_thread_mdelay(1000);
-		//rt_printf("hello world123!, %s\n", __func__);
-		//rt_kprintf("current tick: %ld\n", rt_tick_get());
+
     	#if 1
     	//等待消息
 		rt_event_recv(&event, TYPE_POWER|TYPE_RECORD|TYPE_MUTE|TYPE_VOL_ADD|TYPE_VOL_SUB,
@@ -337,43 +413,36 @@ static void app_thread_entry(void *parameter)
 		{
 			case TYPE_POWER:
 				LOG_D("power control");
-				//tinyplay_audio();
-				app_led_control(2);
-				//tinycap_audio();
-				//rt_pm_request(1);
 				break;
 
 			case TYPE_RECORD:
 				LOG_D("record control");
-				//tinycap_audio();
-				//tinyplay_audio();
-				app_led_control(1);
-				//rt_pm_release(1);
+				tinycap_audio();
+				app_led_control(LED_RECORD, LED_NEGAT);
 				break;
 
 			case TYPE_MUTE:
 				LOG_D("mute control play");
-				//tinyplay_audio();
-				//app_mute_control(1);
-				app_led_control(3);
-				//player_vol_add();		
+				tinyplay_audio();
+				app_led_control(LED_MUTE, LED_NEGAT);
 				break;
 
 			case TYPE_VOL_ADD:
 				LOG_D("add vol control");
-				//player_vol_add();
-				//player_vol_sub();
+				vol_add();
 				break;
 			
 			case TYPE_VOL_SUB:
 				LOG_D("sub vol control");
-				//player_vol_sub();
+				vol_sub();
 				break;
 			
 			case 8:
+				//app_mute_control(1);
 				break;
 				
 			case 9:
+				//app_mute_control(0);
 				break;
 				
 			case 10:
@@ -415,9 +484,8 @@ static void app_thread_entry2(void *parameter)
 	rk_snd_card_init();
 	rt_thread_mdelay(10);
 
-	//蓝牙初始化
-	//application_start();
-	//system("bt");
+	//蓝牙初始化并打开
+	application_start();
 
 	LOG_I("application_start init suc!\n");
 }
@@ -427,7 +495,7 @@ static void app_thread_entry2(void *parameter)
 void app_thread_init(void)
 {
 	static struct rt_thread app;
-	static struct rt_thread app2;
+	//static struct rt_thread app2;
 	
     /* initialize thread */
     rt_thread_init(&app,
@@ -440,14 +508,14 @@ void app_thread_init(void)
                    32);
 
 	/* initialize thread */
-    rt_thread_init(&app2,
+   /* rt_thread_init(&app2,
                    "app2",
                    app_thread_entry2,
                    RT_NULL,
                    &rt_thread_stack2[0],
                    sizeof(rt_thread_stack2),
                    RT_THREAD_PRIORITY_MAX - 1,
-                   32);
+                   32);*/
 		
     /* startup */
     rt_thread_startup(&app);
@@ -457,39 +525,17 @@ void app_thread_init(void)
 	
 }
 
-void sd_mount()
-{
-    while (1)
-    {
-        rt_thread_mdelay(5000);
-        if(rt_device_find("root") != RT_NULL)
-        {
-            if (dfs_mount("root", "/", "elm", 0, 0) == RT_EOK)
-            {
-                LOG_I("root mount to '/'");
-                break;
-            }
-            else
-            {
-                LOG_W("root mount to '/' failed!");
-            }
-        }
-    }
-}
-
 
 void blsx_entry()
 {
 	//i/o初始化		
-	app_gpio_init();
+	//app_gpio_init();
 
+	//唤醒按键中断初始化
 	//gpio_interrupt_init();
-
-	//rt_hw_gpio_init();
 	
 	//创建线程
 	app_thread_init();
-	//sd_mount();
 }
 
 

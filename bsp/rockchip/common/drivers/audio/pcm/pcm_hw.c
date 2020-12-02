@@ -131,6 +131,8 @@ static snd_pcm_sframes_t snd_pcm_hw_avail_update(snd_pcm_t *pcmhw)
         break;
     case SND_PCM_STATE_XRUN:
         return -EPIPE;
+        /* Do nothing */
+        //break;
     default:
         break;
     }

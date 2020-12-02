@@ -142,7 +142,7 @@ RT_WEAK struct rk_mmc_platform_data rk_mmc_table[] =
 {
 #ifdef RT_USING_SDIO0
     {
-        .flags = MMCSD_BUSWIDTH_4 | MMCSD_MUTBLKWRITE | MMCSD_SUP_SDIO_IRQ | MMCSD_SUP_HIGHSPEED,
+        .flags = /*MMCSD_BUSWIDTH_4 | */MMCSD_MUTBLKWRITE | MMCSD_SUP_SDIO_IRQ | MMCSD_SUP_HIGHSPEED,
         .irq = SDIO_IRQn,
         .base = SDIO_BASE,
         .clk_id = CLK_SDIO_PLL,
@@ -553,9 +553,13 @@ SECTION(".sram.text") void BSP_MPU_Init(void)
  */
 RT_WEAK void system_power_hold(void)
 {
-    HAL_PINCTRL_SetIOMUX(GPIO_BANK1, GPIO_PIN_B7, PIN_CONFIG_MUX_FUNC0);
+    /*HAL_PINCTRL_SetIOMUX(GPIO_BANK1, GPIO_PIN_B7, PIN_CONFIG_MUX_FUNC0);
     HAL_GPIO_SetPinDirection(GPIO1, GPIO_PIN_B7, GPIO_OUT);
-    HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_B7, GPIO_HIGH);
+    HAL_GPIO_SetPinLevel(GPIO1, GPIO_PIN_B7, GPIO_HIGH);*/
+
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK0, GPIO_PIN_A5, PIN_CONFIG_MUX_FUNC0);
+    HAL_GPIO_SetPinDirection(GPIO0, GPIO_PIN_A5, GPIO_OUT);
+    HAL_GPIO_SetPinLevel(GPIO0, GPIO_PIN_A5, GPIO_HIGH);
 }
 
 #ifdef RT_USING_PM_REQ_PWR

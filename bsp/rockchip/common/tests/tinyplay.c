@@ -24,7 +24,7 @@
 #ifdef RT_USING_DRIVER_AUDIO_PCM_PLUGIN_SOFTVOL
 #include "pcm_plugin_provider.h"
 
-static uint16_t vol_l = 20, vol_r = 20;
+static uint16_t vol_l = 10, vol_r = 10;
 static struct rt_device *s_card = NULL;
 #else
 
@@ -116,9 +116,9 @@ static void play_sample(FILE *file, struct rt_device *card, uint32_t channels,
     ret = rt_device_control(card, RK_AUDIO_CTL_PLUGIN_PREPARE, (void *)type);
     RT_ASSERT(ret == RT_EOK);
 
-    softvol.vol_l = vol_l;
-    softvol.vol_r = vol_r;
-    rt_kprintf("Set softvol: %d, %d\n", vol_l, vol_r);
+    softvol.vol_l = vol_l/5;
+    softvol.vol_r = vol_r/5;
+    rt_kprintf("Set softvol: %d, %d\n", vol_l/5, vol_r/5);
     ret = rt_device_control(card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
     RT_ASSERT(ret == RT_EOK);
 
@@ -156,6 +156,7 @@ static void play_sample(FILE *file, struct rt_device *card, uint32_t channels,
 		
     	if(fread(buffer, 1, size, file) <= 0)
     	{
+    		app_led_control(LED_MUTE, LED_CLOSE);
     		break;
     	}		
 		
@@ -485,10 +486,10 @@ int tinyplay_audio()
     char card[RT_NAME_MAX] = {0};
     FILE *file;
 
-    file = fopen(name[id], "rb");
+    file = fopen("/mnt/sdcard/test2.wav", "rb");
     if (!file)
     {
-        rt_kprintf("Unable to open file %s\n", name[id]);
+        rt_kprintf("Unable to open file %s\n", "/mnt/sdcard/test2.wav");
         return 1;
     }
 	/*id++;
@@ -501,7 +502,7 @@ int tinyplay_audio()
     if ((riff_wave_header.riff_id != ID_RIFF) ||
             (riff_wave_header.wave_id != ID_WAVE))
     {
-        rt_kprintf("Error: /sdcard/123.wav is not a riff/wave file\n");
+        rt_kprintf("Error: /mnt/sdcard/test2.wav is not a riff/wave file\n");
         fclose(file);
         return 1;
     }
@@ -584,8 +585,8 @@ int vol_add()
 		if(vol_l > 100)
 			vol_l = 100;
 	}
-	softvol.vol_l = vol_r;
-	softvol.vol_r = vol_r;
+	softvol.vol_l = vol_r/5;
+	softvol.vol_r = vol_r/5;
 	
 	if(s_card == NULL)
 	{
@@ -617,8 +618,8 @@ int vol_sub()
 		if(vol_l < 0)
 			vol_l = 0;
 	}
-	softvol.vol_l = vol_l;
-	softvol.vol_r = vol_r;
+	softvol.vol_l = vol_l/5;
+	softvol.vol_r = vol_r/5;
 
 	if(s_card == NULL)
 	{
@@ -662,19 +663,37 @@ int vol_set(int argc, char **argv)
 		return 0;
 	}
 
-	softvol.vol_l = vol_l;
-	softvol.vol_r = vol_r;
+	softvol.vol_l = vol_l/5;
+	softvol.vol_r = vol_r/5;
 
 	if(s_card != NULL)
 		rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
 	
 	return 1;
 }
-extern int dfs_mount(const char   *device_name,
-              const char   *path,
-              const char   *filesystemtype,
-              unsigned long rwflag,
-              const void   *data);
+
+inline void writel(volatile void *addr, uint32_t val)
+{
+    *((uint32_t *)addr) = val;
+}
+
+inline uint32_t readl(const volatile void *addr)
+{
+    return *((uint32_t *)addr);
+}
+
+
+void read_register()
+{
+	rt_kprintf("0x0000 is 0x%x\n", readl(ACDCDIG_BASE + 0x0030));
+	rt_kprintf("0x0000 is 0x%x\n", readl(ACDCDIG_BASE + 0x0034));
+	rt_kprintf("0x0000 is 0x%x\n", readl(ACDCDIG_BASE + 0x0038));
+}
+
+void write_register()
+{
+	writel(ACDCDIG_BASE + 0x0000, 0x000F000F);
+}
 
 
 #ifdef RT_USING_FINSH
@@ -684,6 +703,9 @@ MSH_CMD_EXPORT(tinyplay_audio, play wav file);
 MSH_CMD_EXPORT(vol_add, add volume);
 MSH_CMD_EXPORT(vol_sub, sub volume);
 MSH_CMD_EXPORT(vol_set, set volume);
+MSH_CMD_EXPORT(read_register, read data);
+MSH_CMD_EXPORT(write_register, write data);
+
 #endif
 
 #endif

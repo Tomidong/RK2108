@@ -16,13 +16,13 @@
 
 // Internal SRAM memory size[Bytes]
 #ifndef RK_SRAM_END
-#define RK_SRAM_END             0x20100000
+#define RK_SRAM_END             0x20100000   
 #endif
 #ifndef RT_USING_UNCACHE_HEAP
 #define RK_SYS_HEAP_END         RK_SRAM_END
 #else
 #define RK_UNCACHE_HEAP_SIZE    (0x2U << RT_UNCACHE_HEAP_ORDER)
-#define RK_SYS_HEAP_END         (RK_SRAM_END - RK_UNCACHE_HEAP_SIZE)
+#define RK_SYS_HEAP_END         (RK_SRAM_END - RK_UNCACHE_HEAP_SIZE + 4096) 
 #define RK_UNCACHE_HEAP_START   RK_SYS_HEAP_END
 #endif
 

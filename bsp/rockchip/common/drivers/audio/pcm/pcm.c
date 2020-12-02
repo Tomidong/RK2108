@@ -724,6 +724,7 @@ snd_pcm_sframes_t snd_pcm_read_areas(snd_pcm_t *pcm, const snd_pcm_channel_area_
         state = __snd_pcm_state(pcm);
         switch (state)
         {
+        //case SND_PCM_STATE_XRUN:
         case SND_PCM_STATE_PREPARED:
             err = __snd_pcm_start(pcm);
             if (err < 0)
@@ -802,6 +803,7 @@ snd_pcm_sframes_t snd_pcm_write_areas(snd_pcm_t *pcm, const snd_pcm_channel_area
         case SND_PCM_STATE_XRUN:
             err = -EPIPE;
             goto _end;
+            //break;
         default:
             err = -EBADFD;
             goto _end;
@@ -822,14 +824,18 @@ snd_pcm_sframes_t snd_pcm_write_areas(snd_pcm_t *pcm, const snd_pcm_channel_area
         if (err < 0)
             break;
         frames = err;
-        if (state == SND_PCM_STATE_PREPARED)
-        {
+
+		//if ((state == SND_PCM_STATE_PREPARED) || (state == SND_PCM_STATE_XRUN))	
+		if (state == SND_PCM_STATE_PREPARED)		
+		{
             snd_pcm_sframes_t hw_avail = pcm->abuf.buf_size - avail;
             hw_avail += frames;
             /* some plugins might automatically start the stream */
             state = __snd_pcm_state(pcm);
-            if (state == SND_PCM_STATE_PREPARED &&
-                    hw_avail >= (snd_pcm_sframes_t) pcm->start_threshold)
+			
+			//if (((state == SND_PCM_STATE_PREPARED) || (state == SND_PCM_STATE_XRUN)) &&	
+			if (state == SND_PCM_STATE_PREPARED &&		
+				hw_avail >= (snd_pcm_sframes_t) pcm->start_threshold)
             {
                 err = __snd_pcm_start(pcm);
                 if (err < 0)
