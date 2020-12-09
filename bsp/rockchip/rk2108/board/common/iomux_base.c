@@ -314,6 +314,7 @@ RT_WEAK RT_UNUSED void uart2_iomux_config(void)
 /**
  * @brief  Config iomux for PCM
  */
+
 RT_WEAK RT_UNUSED void pcm_iomux_config(void)
 {
     HAL_PINCTRL_SetIOMUX(GPIO_BANK1,
@@ -325,6 +326,56 @@ RT_WEAK RT_UNUSED void pcm_iomux_config(void)
     HAL_PINCTRL_SetIOMUX(GPIO_BANK1,
                          GPIO_PIN_B4,   // PCM_CLK
                          PIN_CONFIG_MUX_FUNC1);
+}
+
+RT_WEAK RT_UNUSED void pcm_m0_iomux_config(void)
+{
+	HAL_PINCTRL_SetIOMUX(GPIO_BANK0,
+						  GPIO_PIN_D3 |  // PCM_CLK_M0
+						  GPIO_PIN_D4 |  // PCM_SYNC_M0
+						  GPIO_PIN_D5 |  // PCM_IN_M0
+						  GPIO_PIN_D6,	 // PCM_OUT_M0
+						  PIN_CONFIG_MUX_FUNC4);
+
+	 WRITE_REG_MASK_WE(GRF->SOC_CON2,
+					   GRF_SOC_CON2_GRF_CON_I2S_LRCK_MUX_MASK |
+					   GRF_SOC_CON2_GRF_CON_I2S_SCLK_MUX_MASK,
+					   (0x1 << GRF_SOC_CON2_GRF_CON_I2S_LRCK_MUX_SHIFT) |
+					   (0x1 << GRF_SOC_CON2_GRF_CON_I2S_SCLK_MUX_SHIFT));
+	 WRITE_REG_MASK_WE(GRF->SOC_CON4,
+					   GRF_SOC_CON4_GRF_CON_BT_PCM_I2S0_MASK,
+					   (0x1 << GRF_SOC_CON4_GRF_CON_BT_PCM_I2S0_SHIFT));
+	 WRITE_REG_MASK_WE(GRF->SOC_CON5,
+					   GRF_SOC_CON5_GRF_CON_PCM_IOMUX_SEL_MASK,
+					   (0x0 << GRF_SOC_CON5_GRF_CON_PCM_IOMUX_SEL_SHIFT));
+}
+
+/**
+ * @brief  Config iomux for PCM_M1
+ */
+RT_WEAK RT_UNUSED void pcm_m1_iomux_config(void)
+{
+     HAL_PINCTRL_SetIOMUX(GPIO_BANK1,
+                         GPIO_PIN_B0 |  // PCM_SYNC_M1
+                         GPIO_PIN_B1 |  // PCM_IN_M1
+                         GPIO_PIN_B2,   // PCM_OUT_M1
+                         PIN_CONFIG_MUX_FUNC2);
+
+    HAL_PINCTRL_SetIOMUX(GPIO_BANK1,
+                         GPIO_PIN_B4,   // PCM_CLK
+                         PIN_CONFIG_MUX_FUNC1);
+
+	WRITE_REG_MASK_WE(GRF->SOC_CON2,
+	              GRF_SOC_CON2_GRF_CON_I2S_LRCK_MUX_MASK |
+	              GRF_SOC_CON2_GRF_CON_I2S_SCLK_MUX_MASK,
+	              (0x1 << GRF_SOC_CON2_GRF_CON_I2S_LRCK_MUX_SHIFT) |
+	              (0x1 << GRF_SOC_CON2_GRF_CON_I2S_SCLK_MUX_SHIFT));
+	WRITE_REG_MASK_WE(GRF->SOC_CON4,
+	              GRF_SOC_CON4_GRF_CON_BT_PCM_I2S0_MASK,
+	              (0x1 << GRF_SOC_CON4_GRF_CON_BT_PCM_I2S0_SHIFT));
+	WRITE_REG_MASK_WE(GRF->SOC_CON5,
+	              GRF_SOC_CON5_GRF_CON_PCM_IOMUX_SEL_MASK,
+	              (0x1 << GRF_SOC_CON5_GRF_CON_PCM_IOMUX_SEL_SHIFT));
 }
 
 /**
@@ -703,7 +754,7 @@ RT_WEAK RT_UNUSED void rt_hw_iomux_config(void)
 
     uart2_iomux_config();
 
-    pcm_iomux_config();
+    //pcm_iomux_config();
 
     touch_iomux_config();
 
@@ -718,6 +769,8 @@ RT_WEAK RT_UNUSED void rt_hw_iomux_config(void)
     i2c0_m1_iomux_config();
     i2c1_m2_iomux_config();
 
+	i2c2_m0_iomux_config();
+
     lcdc_iomux_config();
 #ifdef RT_USING_I2STDM1
     i2s1_output_iomux_config();
@@ -728,7 +781,13 @@ RT_WEAK RT_UNUSED void rt_hw_iomux_config(void)
 #endif
 
 #ifdef RT_USING_QPIPSRAM_SPI_HOST
-    //spi1_m0_iomux_config();
+    spi1_m0_iomux_config();
+#endif
+
+#if defined(RT_USING_PCM_M0)
+    pcm_m0_iomux_config();
+#elif defined(RT_USING_PCM_M1)
+    pcm_m1_iomux_config();
 #endif
 
 #ifdef RT_USING_AUDIOPWM

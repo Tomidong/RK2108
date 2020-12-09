@@ -24,7 +24,7 @@
 #ifdef RT_USING_DRIVER_AUDIO_PCM_PLUGIN_SOFTVOL
 #include "pcm_plugin_provider.h"
 
-static uint16_t vol_l = 100, vol_r = 100;
+static uint16_t vol_l = 50, vol_r = 50;
 #endif
 
 #define ID_RIFF 0x46464952
@@ -491,10 +491,10 @@ int tinycap_audio()
     config->period_size = 1024;
     config->period_count = 4;
 
-    config->card = rt_device_find("adcc");
+    config->card = rt_device_find("pdmc");
     if (!config->card)
     {
-        rt_kprintf("Can't find sound device: %s\n", "adcc");
+        rt_kprintf("Can't find sound device: %s\n", "pdmc");
         goto err;
     }
 
@@ -557,18 +557,219 @@ int test()
 	return 0;
 }
 
-void gb_set()
+#if 0
+#include "drv_pmic.h"
+
+RT_WEAK struct pwr_i2c_desc pmic_pwr_i2c_desc =
 {
-	struct AUDIO_DB_CONFIG db_config;
-	
-	rt_device_open(card, RT_DEVICE_OFLAG_RDONLY);
-	rt_device_control(card, RK_AUDIO_CTL_GET_GAIN, &db_config);
+    .name = "i2c2",//"i2c0",
+    .addr = 0x1a,
+};
 
-	db_config.dB = 37500;
-	rt_device_control(card, RK_AUDIO_CTL_SET_GAIN, &db_config);
+static rt_err_t pmic_i2c_read(struct rt_i2c_bus_device *pmic_i2c_bus,
+                              rt_uint8_t addr, rt_uint16_t reg, rt_uint8_t *data)
+{
+    struct rt_i2c_msg msg[2];
+    rt_uint8_t send_buf[2];
 
-	rt_device_close(card);
+    send_buf[0] = (reg & 0xFF);
+
+    msg[0].addr  = addr;
+    msg[0].flags = RT_I2C_WR;
+    msg[0].len   = 1;
+    msg[0].buf   = send_buf;
+
+    msg[1].addr  = addr;
+    msg[1].flags = RT_I2C_RD;
+    msg[1].len   = 1;
+    msg[1].buf   = data;
+
+    if (rt_i2c_transfer(pmic_i2c_bus, msg, 2) == 2)
+        return RT_EOK;
+    else
+        return -RT_ERROR;
 }
+
+
+rt_uint32_t pmic_read(struct rt_i2c_bus_device *pmic_i2c_bus,
+                      rt_uint8_t addr, rt_uint16_t reg)
+{
+    rt_uint8_t data[1] = {0x00};
+
+    if (pmic_i2c_read(pmic_i2c_bus, addr, reg, data) == RT_EOK)
+        return data[0];
+    else
+        return -RT_ERROR;
+}
+
+struct pwr_i2c_desc *pmic_get_i2c_desc(void)
+{
+    struct pwr_i2c_desc *i2c_desc = &pmic_pwr_i2c_desc;
+
+    RT_ASSERT(i2c_desc->name != NULL);
+
+    if (i2c_desc->bus == RT_NULL)
+    {
+        i2c_desc->bus = rt_i2c_bus_device_find(i2c_desc->name);
+        if (i2c_desc->bus == RT_NULL)
+        {
+            rt_kprintf("PMIC: No %s\n", i2c_desc->name);
+            return NULL;
+        }
+    }
+
+    return i2c_desc;
+}
+
+int gb_set()
+{
+	struct pwr_i2c_desc *i2c;
+	rt_int32_t val;
+	i2c = pmic_get_i2c_desc();
+	if(i2c == NULL)
+	{
+        rt_kprintf("i2c2 bus is NULL");
+        return 1;
+    }	
+	
+	val = pmic_read(i2c->bus, i2c->addr, 0x17);
+    if (val < 0)
+    {
+        rt_kprintf("failed to read reg: 0x%x\n", 0x17);
+        return val;
+    }
+	rt_kprintf("val is %x\n", val);
+	return 1;
+}
+#endif
+int cap_vol_set(int argc, char **argv)
+{
+	rt_kprintf("argc is %d\n", argc);
+	if(argc != 2)
+	{
+		rt_kprintf("usage is vol_set xx\n");
+		return 0;
+	}
+	
+	unsigned short data = atoi(argv[1]);
+
+	printf("data is %d\n", data);
+	if(data >= 0 && data <= 100)
+	{
+		vol_l = data;
+		vol_r = data;
+	}
+	else
+	{
+		rt_kprintf("vol range error[0-100], %d\n", data);
+		return 0;
+	}
+	
+	return 1;
+}
+
+static struct rt_device *s_card = NULL;
+
+int vol_add_record()
+{
+	snd_softvol_t softvol = {0};
+	
+	if(vol_r < 100)
+	{
+		vol_r += 5;
+		vol_l += 5;
+		if(vol_r > 100)
+			vol_r = 100;
+		if(vol_l > 100)
+			vol_l = 100;
+	}
+	softvol.vol_l = vol_r/1;
+	softvol.vol_r = vol_r/1;
+	
+	if(s_card == NULL)
+	{
+		s_card = rt_device_find("pdmc");
+		if(s_card == NULL)
+		{
+			rt_kprintf("s_card NULL\n");
+			return 0;
+		}
+			
+	}
+	
+	rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
+						
+	rt_kprintf("record_vol_add\n");
+
+	return 0;
+}
+
+int vol_sub_record()
+{
+	snd_softvol_t softvol = {0};
+	if(vol_r > 0)
+	{
+		vol_r -= 5;
+		vol_l -= 5;
+		if(vol_r < 0)
+			vol_r = 0;
+		if(vol_l < 0)
+			vol_l = 0;
+	}
+	softvol.vol_l = vol_l/1;
+	softvol.vol_r = vol_r/1;
+
+	if(s_card == NULL)
+	{
+		s_card = rt_device_find("pdmc");
+		if(s_card == NULL)
+		{
+			rt_kprintf("s_card NULL\n");
+			return 0;
+		}
+			
+	}
+	
+	rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
+	
+	rt_kprintf("record_vol_sub\n");
+
+	return 0;
+}
+
+int vol_set_record(int argc, char **argv)
+{
+	rt_kprintf("argc is %d\n", argc);
+	if(argc != 2)
+	{
+		rt_kprintf("usage is vol_set xx\n");
+		return 0;
+	}
+	
+	snd_softvol_t softvol = {0};
+	unsigned short data = atoi(argv[1]);
+
+	printf("data is %d\n", data);
+	if(data >= 0 && data <= 100)
+	{
+		vol_l = data;
+		vol_r = data;
+	}
+	else
+	{
+		rt_kprintf("vol range error[0-100], %d\n", data);
+		return 0;
+	}
+
+	softvol.vol_l = vol_l;
+	softvol.vol_r = vol_r;
+
+	if(s_card != NULL)
+		rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
+	
+	return 1;
+}
+
 
 
 #ifdef RT_USING_FINSH
@@ -576,8 +777,8 @@ void gb_set()
 MSH_CMD_EXPORT(tinycap, capture wav file);
 MSH_CMD_EXPORT(tinycap_audio, capture wav file);
 MSH_CMD_EXPORT(capture_state_set1, capture wav file);
-MSH_CMD_EXPORT(test, test);
-MSH_CMD_EXPORT(gb_set, gb_set);
+//MSH_CMD_EXPORT(gb_set, gb_set);
+MSH_CMD_EXPORT(vol_set_record, cap_vol_set);
 
 #endif
 

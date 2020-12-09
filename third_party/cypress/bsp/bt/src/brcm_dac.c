@@ -19,6 +19,12 @@
 #define BT_MIC_DEVICE "pdmc"
 #endif
 
+#ifdef RT_USING_DRIVER_AUDIO_PCM_PLUGIN_SOFTVOL
+#include "pcm_plugin_provider.h"
+
+#endif
+
+
 typedef struct
 {
     const char *name;
@@ -124,7 +130,6 @@ static wiced_result_t brcm_dac_init(void *driver_data, wiced_audio_data_port_t *
     int ret;
 
     printf("==%s==\n", __func__);
-	printf("%s current1 tick: %ld\n", __func__, rt_tick_get());
 
     if (audio_device == NULL)
     {
@@ -133,7 +138,7 @@ static wiced_result_t brcm_dac_init(void *driver_data, wiced_audio_data_port_t *
         ret = rt_device_open(audio_device, RT_DEVICE_OFLAG_WRONLY);
         RT_ASSERT(ret == RT_EOK);
     }
-	printf("%s current1 tick: %ld\n", __func__, rt_tick_get());
+
     return WICED_SUCCESS;
 }
 
@@ -144,7 +149,7 @@ static wiced_result_t brcm_dac_configure(void *driver_data, wiced_audio_config_t
 
     if (audio_device != NULL)
     {
-        abuf.period_size = 128;	//wangcy
+        abuf.period_size = 128;
         abuf.buf_size = abuf.period_size * 16;
         size = abuf.buf_size * 2 * (16 >> 3); /* frames to bytes */
         frame_size = abuf.period_size * 2 * (16 >> 3);
@@ -155,14 +160,26 @@ static wiced_result_t brcm_dac_configure(void *driver_data, wiced_audio_config_t
         param.channels = config->channels;
         param.sampleRate = config->sample_rate;
         param.sampleBits = config->bits_per_sample;
-		//printf("%s current1 tick: %ld\n", __func__, rt_tick_get());
+		
         ret = rt_device_control(audio_device, RK_AUDIO_CTL_PCM_PREPARE, &abuf);
         RT_ASSERT(ret == RT_EOK);
-		//printf("%s current1 tick: %ld\n", __func__, rt_tick_get());
-
+		
+#ifdef RT_USING_DRIVER_AUDIO_PCM_PLUGIN
+		snd_pcm_type_t type = SND_PCM_TYPE_SOFTVOL;
+		ret = rt_device_control(audio_device, RK_AUDIO_CTL_PLUGIN_PREPARE, (void *)type);
+    	RT_ASSERT(ret == RT_EOK);
+		snd_softvol_t softvol, softvol2; 
+		softvol.vol_l = 80;
+		softvol.vol_r = 80;
+		ret = rt_device_control(audio_device, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
+    	RT_ASSERT(ret == RT_EOK);
+		ret = rt_device_control(audio_device, RK_AUDIO_CTL_PLUGIN_GET_SOFTVOL, &softvol2);
+	    RT_ASSERT(ret == RT_EOK);
+	    rt_kprintf("audio_device Get softvol2: %d, %d\n", softvol2.vol_l, softvol2.vol_r);
+#endif
+		
         ret = rt_device_control(audio_device, RK_AUDIO_CTL_HW_PARAMS, &param);
         RT_ASSERT(ret == RT_EOK);
-		printf("%s current1 tick: %ld\n", __func__, rt_tick_get());
     }
     printf("### brcm_dac_configure rate: %d, channels: %d, bits: %d ###\n",
            param.sampleRate, param.channels, param.sampleBits);
@@ -278,6 +295,22 @@ static wiced_result_t rk_recorder_configure(void *driver_data, wiced_audio_confi
 
         ret = rt_device_control(r_audio_device, RK_AUDIO_CTL_PCM_PREPARE, &r_abuf);
         RT_ASSERT(ret == RT_EOK);
+
+#ifdef RT_USING_DRIVER_AUDIO_PCM_PLUGIN
+
+		snd_pcm_type_t type = SND_PCM_TYPE_SOFTVOL;		
+		ret = rt_device_control(r_audio_device, RK_AUDIO_CTL_PLUGIN_PREPARE, (void *)type);
+    	RT_ASSERT(ret == RT_EOK);
+
+		snd_softvol_t softvol,softvol2; 
+		softvol.vol_l = 100;
+		softvol.vol_r = 100;
+		ret = rt_device_control(r_audio_device, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
+    	RT_ASSERT(ret == RT_EOK);
+		ret = rt_device_control(r_audio_device, RK_AUDIO_CTL_PLUGIN_GET_SOFTVOL, &softvol2);
+	    RT_ASSERT(ret == RT_EOK);
+	    rt_kprintf("r_audio_device Get softvol2: %d, %d\n", softvol2.vol_l, softvol2.vol_r);
+#endif		
 
         ret = rt_device_control(r_audio_device, RK_AUDIO_CTL_HW_PARAMS, &r_param);
         RT_ASSERT(ret == RT_EOK);

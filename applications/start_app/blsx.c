@@ -48,7 +48,8 @@ extern int tinycap_audio();		//开始播放的函数(文件的路径在那时被
 //extern void player_state_set(player_type_e data);	//播放时的控制函数
 extern int vol_sub();		
 extern int vol_add();
-
+extern int vol_add_record();
+extern int vol_sub_record();
 
 //功放(静音)控制函数，eg: falg为真，静音；反之不静音。
 void app_mute_control(mute_e flag)
@@ -335,6 +336,11 @@ void app_wdt_init()
 	
 	/* 根据设备名称查找看门狗设备，获取设备句柄 */
 	wdg_dev = rt_device_find("dw_wdt");
+	if(wdg_dev == NULL)
+	{
+		LOG_E("no find wdt device, %s", __func__);
+		return NULL;
+	}
 	/* 初始化设备 */
 	rt_device_init(wdg_dev);
 
@@ -357,6 +363,8 @@ static void app_thread_entry(void *parameter)
 	
 	uint32_t ret = -1, i = 0;
 
+	rt_thread_mdelay(100);
+	
 	//打开按键检测
 	app_key_open_device("keyctrl");	
 
@@ -384,10 +392,9 @@ static void app_thread_entry(void *parameter)
 		}
 			
 	}*/
-	
-	rt_thread_mdelay(10);
-	rk_snd_card_init();
-	rt_thread_mdelay(10);
+
+	//rt_thread_mdelay(10);
+	//rk_snd_card_init();
 
 	//蓝牙初始化并打开
 	//application_start();
@@ -402,7 +409,7 @@ static void app_thread_entry(void *parameter)
     {
     	
     	//rt_thread_mdelay(1000);
-
+    	
     	#if 1
     	//等待消息
 		rt_event_recv(&event, TYPE_POWER|TYPE_RECORD|TYPE_MUTE|TYPE_VOL_ADD|TYPE_VOL_SUB,
@@ -430,11 +437,13 @@ static void app_thread_entry(void *parameter)
 			case TYPE_VOL_ADD:
 				LOG_D("add vol control");
 				vol_add();
+				//vol_add_record();
 				break;
 			
 			case TYPE_VOL_SUB:
 				LOG_D("sub vol control");
 				vol_sub();
+				//vol_sub_record();
 				break;
 			
 			case 8:
@@ -527,7 +536,7 @@ void app_thread_init(void)
 
 
 void blsx_entry()
-{
+{	
 	//i/o初始化		
 	//app_gpio_init();
 

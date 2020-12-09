@@ -27,9 +27,9 @@
 #define NUM_MSECONDS_IN_SECONDS                     (1000)
 
 #define BT_AUDIO_BUFFER_SIZE                ( 4*BT_AUDIO_DEFAULT_PERIOD_SIZE )
-#define BT_AUDIO_QUEUE_MAX_SIZE  (64*2) //(28)	
+#define BT_AUDIO_QUEUE_MAX_SIZE  (64*2) //(28)
 
-#define BT_AUDIO_QUEUE_THRESHOLD (10)		
+#define BT_AUDIO_QUEUE_THRESHOLD (10)
 
 
 /*****************************************************************************

@@ -158,7 +158,7 @@ RT_WEAK struct rk_mmc_platform_data rk_mmc_table[] =
 #ifdef RT_USING_PMIC_RK816
 RT_WEAK struct pwr_i2c_desc pmic_pwr_i2c_desc =
 {
-    .name = "i2c0",
+    .name = "i2c2",//"i2c0",
     .addr = RK816_I2C_ADDR,
 };
 #endif
@@ -211,6 +211,63 @@ RT_WEAK struct rk816_sensor_platform_data rk816_sensor_pdata =
 #ifdef RT_USING_PMIC_RK816
 RT_WEAK struct regulator_desc regulators[] =
 {
+#if 1
+		/* BUCK1 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_BUCK1_2(RK816_ID_DCDC1, PWR_ID_VCC1),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+		/* BUCK2 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_BUCK1_2(RK816_ID_DCDC2, PWR_ID_VCC_1V8_BUCK),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+		/* BUCK4 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_BUCK4(RK816_ID_DCDC4, PWR_ID_VCCIO_3V3),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+		/* LDO1 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_LDO1_4(RK816_ID_LDO1, PWR_ID_VCC_3V0_BL),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+		/* LDO2 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_LDO1_4(RK816_ID_LDO2, PWR_ID_VCC_1V8_LDO),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+		/* LDO3 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_LDO1_4(RK816_ID_LDO3, PWR_ID_VLDO3),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+		/* LDO4 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_LDO1_4(RK816_ID_LDO4, PWR_ID_VCC33_CODEC),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+		/* LDO5 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_LDO5_6(RK816_ID_LDO5, PWR_ID_VCC33_AUDIO),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+		/* LDO6 */
+		{
+			.flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+			.desc.i2c_desc = RK816_LDO5_6(RK816_ID_LDO6, PWR_ID_VLDO6),
+			.desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+		},
+#else
+
     /* BUCK4 */
     {
         .flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
@@ -235,15 +292,47 @@ RT_WEAK struct regulator_desc regulators[] =
         .desc.i2c_desc = RK816_LDO5_6(RK816_ID_LDO6, PWR_ID_VCC_MIPI),
         .desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
     },
+    /* LDO1 */
+    {
+        .flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+        .desc.i2c_desc = RK816_LDO1_4(RK816_ID_LDO1, PWR_ID_VCC_3V0_BL),
+        .desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+    },
+    /* LDO4 */
+    {
+        .flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+        .desc.i2c_desc = RK816_LDO1_4(RK816_ID_LDO4, PWR_ID_VCC33_CODEC),
+        .desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+    },
+    /* LDO3 */
+    {
+        .flag = REGULATOR_FLG_I2C8 | REGULATOR_FLG_LOCK,
+        .desc.i2c_desc = RK816_LDO1_4(RK816_ID_LDO3, PWR_ID_VCC33_AUDIO),
+        .desc.i2c_desc.i2c = &pmic_pwr_i2c_desc,
+    },
+#endif
     { /* sentinel */ },
 };
 
 RT_WEAK const struct regulator_init regulator_inits[] =
 {
+#if 0
     REGULATOR_INIT("dcdc4", PWR_ID_VCCIO_3V3,  3300000, 1, 3300000, 1),
     REGULATOR_INIT("ldo2",  PWR_ID_VCCIO_1V8,  1800000, 1, 1800000, 1),
     REGULATOR_INIT("ldo5",  PWR_ID_VCC_AUDIO,  3300000, 1, 3300000, 1),
     REGULATOR_INIT("ldo6",  PWR_ID_VCC_MIPI,   3300000, 1, 3300000, 1),
+#else
+	REGULATOR_INIT("dcdc1", PWR_ID_VCC1,		 3300000, 0, 1100000, 1),
+	REGULATOR_INIT("dcdc2", PWR_ID_VCC_1V8_BUCK, 1100000, 1, 1100000, 1),
+	REGULATOR_INIT("dcdc4", PWR_ID_VCCIO_3V3,	 3300000, 1, 3300000, 1),
+	REGULATOR_INIT("ldo1",	PWR_ID_VCC_3V0_BL,	 3300000, 1, 3300000, 1),
+	REGULATOR_INIT("ldo2",	PWR_ID_VCC_1V8_LDO,  1800000, 1, 1800000, 1),
+	REGULATOR_INIT("ldo3",	PWR_ID_VLDO3,		 3300000, 1, 1800000, 1),
+	REGULATOR_INIT("ldo4",	PWR_ID_VCC33_CODEC,  3300000, 1, 3300000, 1),
+	REGULATOR_INIT("ldo5",	PWR_ID_VCC33_AUDIO,  3300000, 0, 3300000, 1),
+	REGULATOR_INIT("ldo6",	PWR_ID_VLDO6,		 1800000, 0, 1800000, 1),
+#endif
+
     { /* sentinel */ },
 };
 
@@ -440,6 +529,17 @@ RT_WEAK const struct audio_card_desc rk_board_audio_cards[] =
         .mclkfs = 4096,
     },
 #endif
+#ifdef RT_USING_AUDIO_CARD_PCM_BT
+	 {
+		 .name = "pcm",
+		 .dai = I2STDM0,
+		 .codec = NULL,
+		 .capture = true,
+		 .playback = true,
+		 .mclkfs = 256,
+		 .format = AUDIO_FMT_I2S,
+	 },
+#endif
 #ifdef RT_USING_AUDIO_CARD_ES8388
     {
         .name = "es8388",
@@ -574,6 +674,27 @@ RT_WEAK struct req_pwr_desc req_pwr_array[] =
             .req_vals = &core_pwr_req[0],
         }
     },
+    /*{
+        .pwr_id = PWR_ID_VCC_3V0_BL,//PWR_ID_CORE,
+        .req_ctrl = {
+            .info.ttl_req = CORE_PWR_REQ_CNT, 
+            .req_vals = &core_pwr_req[0],
+        }
+    },
+    {
+        .pwr_id = PWR_ID_VCC33_CODEC,//PWR_ID_CORE,
+        .req_ctrl = {
+            .info.ttl_req = CORE_PWR_REQ_CNT, 
+            .req_vals = &core_pwr_req[0],
+        }
+    },
+    {
+        .pwr_id = PWR_ID_VCC33_CODEC,//PWR_ID_CORE,
+        .req_ctrl = {
+            .info.ttl_req = CORE_PWR_REQ_CNT, 
+            .req_vals = &core_pwr_req[0],
+        }
+    },*/
     { /* sentinel */ },
 };
 #endif

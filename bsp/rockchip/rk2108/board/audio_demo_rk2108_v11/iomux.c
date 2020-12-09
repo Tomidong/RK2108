@@ -105,10 +105,16 @@ void rt_hw_iomux_config(void)
     uart0_iomux_config();
 
     i2c0_m1_iomux_config();
-
+	i2c2_m0_iomux_config();
 #ifdef RT_USING_I2STDM1
     i2s1_output_iomux_config();
 #endif
+#if defined(RT_USING_PCM_M0)
+	pcm_m0_iomux_config();
+#elif defined(RT_USING_PCM_M1)
+	pcm_m1_iomux_config();
+#endif
+
 #ifdef RT_USING_AUDIOPWM
     audio_iomux_config();
 #endif

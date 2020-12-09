@@ -55,7 +55,7 @@
 #endif
 
 #ifdef RT_USING_PMIC_RK816
-#define PMIC_INT_PIN            BANK_PIN(GPIO_BANK0, 30)
+#define PMIC_INT_PIN            BANK_PIN(GPIO_BANK0, 7)//BANK_PIN(GPIO_BANK0, 30)
 #endif
 
 #ifdef RT_USING_SPI_SCREEN

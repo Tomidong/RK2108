@@ -114,15 +114,15 @@
 /* PKG_CMBACKTRACE_PLATFORM_M7 is not set */
 /* PKG_CMBACKTRACE_PLATFORM_NOT_SELECTED is not set */
 /* PKG_CMBACKTRACE_PRINT_CHINESE is not set */
-/* PKG_CMBACKTRACE_FAULT_REBOOT is not set */
 /* PKG_CMBACKTRACE_FAULT_DUMP_TO_FLASH is not set */
 /* RT_USING_LOGTRACE is not set */
-/* YMODEM_USING_CRC_TABLE is not set */
+/* RT_USING_RYM is not set */
 /* RT_USING_RZM is not set */
 /* ULOG_OUTPUT_LVL_A is not set */
 /* ULOG_OUTPUT_LVL_E is not set */
 /* ULOG_OUTPUT_LVL_W is not set */
 /* ULOG_OUTPUT_LVL_I is not set */
+/* ULOG_USING_ISR_LOG is not set */
 /* ULOG_USING_ASYNC_OUTPUT is not set */
 /* log format */
 /* ULOG_OUTPUT_FLOAT is not set */
@@ -137,10 +137,7 @@
 /* RT-Thread Benchmarks */
 /* RT_USING_BENCHMARK is not set */
 /* RT_USING_NET_HTTP is not set */
-/* OTA Component Options */
-/* RT_USING_OTA_RECOVERY is not set */
-/* RT_USING_OTA_FROM_HTTP is not set */
-/* RT_SUPPORT_ROOT_AB is not set */
+/* RT_USING_OTA is not set */
 /* RT-Thread third party package */
 /* PKG_CMSIS_RTOS2 is not set */
 /* RT_USING_WLAN_WICED is not set */
@@ -181,9 +178,10 @@
 /* RT-Thread rockchip common drivers */
 /* HAL_DBG_ON is not set */
 /* RT_USING_SND_GLB_RST is not set */
+/* RT_USING_RESET is not set */
 /* RT_USING_CRU_DUMP is not set */
 /* RT_USING_REGULATOR_DUMP is not set */
-/* RT_USING_PMIC is not set */
+/* RT_USING_PMIC_RK817 is not set */
 /* RT_USING_DTCM_HEAP is not set */
 /* RT_USING_PSRAM_HEAP is not set */
 /* Enable Fault Dump Hook */
@@ -192,6 +190,8 @@
 /* RT_USING_SNOR_SFC_HOST is not set */
 /* RT_USING_SNOR_SPI_HOST is not set */
 /* RT-Thread rockchip pm drivers */
+/* RT_USING_PM_DVFS is not set */
+/* RT_USING_PM_REQ_PWR is not set */
 /* RT_USING_PM_REQ_CLK is not set */
 /* RT_USING_DVFS_DBG is not set */
 /* RT_USING_PM_RUNTIME is not set */
@@ -207,11 +207,14 @@
 /* Enable Audio */
 /* PCM Softvol Configuration */
 /* Audio Cards */
-/* RT_USING_AUDIO_CARD_ACDCDIG is not set */
-/* RT_USING_AUDIO_CARD_AUDIOPWM is not set */
+/* RT_USING_ACDCDIG_PDM0 is not set */
 /* RT_USING_AUDIO_CARD_I2S_MIC is not set */
+/* RT_USING_AUDIO_CARD_PCM_BT is not set */
+/* RT_USING_PCM_M0 is not set */
+/* RT_USING_PCM_M1 is not set */
 /* RT_USING_AUDIO_CARD_ES7243 is not set */
 /* RT_USING_AUDIO_CARD_ES8156 is not set */
+/* RT_USING_AUDIO_CARD_ES8311 is not set */
 /* RT_USING_AUDIO_CARD_ES8388 is not set */
 /* RT_USING_AUDIO_CARD_ADC_ES8311_ECHO is not set */
 /* RT_USING_AUDIO_CARD_PDM_ES8388_ECHO is not set */
@@ -225,7 +228,6 @@
 /* RT_USING_UART1 is not set */
 /* Enable I2C */
 /* RT_USING_I2C1 is not set */
-/* RT_USING_I2C2 is not set */
 /* Enable SPI */
 /* RT_USING_SPI2APB is not set */
 /* RT_USING_SPI1 is not set */
@@ -249,7 +251,6 @@
 /* RT_USING_FILE_TEST is not set */
 /* RT_USING_AUTO_TEST is not set */
 /* RT_USING_COMMON_TEST_SUSPEND is not set */
-/* RT_USING_COMMON_TEST_AUDIO is not set */
 /* RT_USING_COMMON_TEST_CODEC_ES8388 is not set */
 /* RT_USING_COMMON_TEST_CPU_USAGE is not set */
 /* RT_USING_COMMON_TEST_DCACHE is not set */
@@ -278,7 +279,7 @@ MEMORY
     PSRAM (rxw) : ORIGIN = 0x1C000000, LENGTH = 8M
     DTCM (rxw) : ORIGIN = 0x30200000, LENGTH = 512K
 }
-FW_MAGIC_LEN = 1180160;
+FW_MAGIC_LEN = 131584;
 XIP_DATA_BASE = 0x60000000;
 SRAM_DATA_BASE = 0x20000000;
 PSRAM_DATA_BASE = 0x64000000;

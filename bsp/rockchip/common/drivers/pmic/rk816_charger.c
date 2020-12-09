@@ -316,7 +316,11 @@ int rt_rk816_charger_init(void)
 
     charger_i2c = pmic_get_i2c_desc();
     if (charger_i2c == RT_NULL)
-        return -RT_EINVAL;
+    {
+    	rt_kprintf("charger_i2c is NULL\n");
+    	return -RT_EINVAL;
+    }
+        
 
     RT_ASSERT(!rt_device_find("charger"));
 
@@ -335,7 +339,7 @@ int rt_rk816_charger_init(void)
     ret = rt_device_register(&charger_dev, "charger", RT_DEVICE_FLAG_RDWR);
     if (ret)
         return ret;
-
+	
     return rk816_charger_init();
 }
 INIT_DEVICE_EXPORT(rt_rk816_charger_init);

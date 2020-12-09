@@ -58,6 +58,7 @@ void assert_failed(uint8_t *file, uint32_t line)
 extern int rt_cm_backtrace_init(void);
 #endif
 
+
 /**
  * This function will startup RT-Thread RTOS.
  */
@@ -86,7 +87,7 @@ void rtthread_startup(void)
     /* init timer system */
     rt_system_timer_init();
 	
-	rt_kprintf("---------------------------------------------------0004\r\n");
+	rt_kprintf("-------------------time %s--------------------------00055\r\n", __TIME__);
 
 #ifdef RT_USING_HEAP
     rt_system_heap_init((void *)RK_SRAM_BEGIN, (void *)RK_SYS_HEAP_END);
@@ -109,6 +110,7 @@ void rtthread_startup(void)
     /* init timer thread */
     rt_system_timer_thread_init();
 
+	
 	blsx_entry();
 
     /* init idle thread */

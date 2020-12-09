@@ -74,6 +74,18 @@ const struct audio_card_desc rk_board_audio_cards[] =
 #endif
     },
 #endif
+#ifdef RT_USING_AUDIO_CARD_PCM_BT
+	 {
+		 .name = "pcm",
+		 .dai = I2STDM0,
+		 .codec = NULL,
+		 .capture = true,
+		 .playback = true,
+		 .mclkfs = 256,
+		 .format = AUDIO_FMT_I2S,
+	 },
+#endif
+
 #ifdef RT_USING_AUDIO_CARD_PDM_MIC
     {
         .name = "pdm",

@@ -1400,4 +1400,3 @@ static void bt()
     application_start();
 }
 MSH_CMD_EXPORT(bt, start Bluetooth);
-

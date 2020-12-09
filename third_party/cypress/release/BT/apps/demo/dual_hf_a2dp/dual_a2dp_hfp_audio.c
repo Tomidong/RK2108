@@ -583,12 +583,14 @@ static void bt_deinit(void)
 }
 MSH_CMD_EXPORT(bt_deinit, stop Bluetooth);
 
+#if defined(BTSNOOPDISP_INCLUDED) && (BTSNOOPDISP_INCLUDED == TRUE)
 void DispBtSnoopdeInit(void);
 static void btsnoop_deinit(void)
 {
     DispBtSnoopdeInit();
 }
 MSH_CMD_EXPORT(btsnoop_deinit, stop btsnoop);
+#endif
 
 extern void bt_audio_hfp_connect_service(void);
 static void hfp_connect(void)

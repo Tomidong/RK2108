@@ -80,8 +80,8 @@ extern "C" {
  ******************************************************/
 typedef struct
 {
-    uint32 time_slice;    /* 0 to disable timeslice among same prio threads; other value to specify slice length */
-    uint32 arg;
+    unsigned int time_slice;    /* 0 to disable timeslice among same prio threads; other value to specify slice length */
+    unsigned int arg;
 } host_rtos_thread_config_type_t;
 
 /******************************************************

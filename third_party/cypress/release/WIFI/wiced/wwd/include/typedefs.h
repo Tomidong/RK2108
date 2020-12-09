@@ -355,7 +355,7 @@ typedef unsigned short  uint16;
 #endif
 
 #ifndef TYPEDEF_UINT32
-typedef unsigned int    uint32;
+//typedef unsigned int    uint32;
 #endif
 
 #ifndef TYPEDEF_UINT64

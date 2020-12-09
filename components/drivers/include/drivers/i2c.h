@@ -67,6 +67,7 @@ struct rt_i2c_client
     rt_uint16_t                    client_addr;
 };
 
+//#define RT_I2C_DEBUG
 #ifdef RT_I2C_DEBUG
 #define i2c_dbg(fmt, ...)   rt_kprintf(fmt, ##__VA_ARGS__)
 #else

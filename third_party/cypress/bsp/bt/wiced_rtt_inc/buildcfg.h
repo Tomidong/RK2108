@@ -173,7 +173,7 @@ extern "C" {
 #define HCI_USE_VARIABLE_SIZE_CMD_BUF                   TRUE
 
 #define HCISU_H4_INCLUDED                               TRUE
-#define HCILP_INCLUDED                                  TRUE
+#define HCILP_INCLUDED                                  FALSE
 #define HCILP_HC_IDLE_THRESHOLD                         5
 #define HCILP_IDLE_THRESHOLD                            5
 #define HCILP_BT_WAKE_POLARITY                          1

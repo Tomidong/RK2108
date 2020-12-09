@@ -119,7 +119,7 @@ void rt_hw_iomux_config(void)
     lcdc_iomux_config();
 
 #ifdef RT_USING_SPINAND_SPI_HOST
-    spi1_m0_iomux_config();
+    //spi1_m0_iomux_config();
 #endif
 }
 /** @} */  // IOMUX_Public_Functions

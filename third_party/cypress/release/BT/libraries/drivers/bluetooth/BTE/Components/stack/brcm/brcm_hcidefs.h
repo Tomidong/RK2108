@@ -25,6 +25,7 @@
 #define HCI_BRCM_UPDATE_BAUDRATE_CMD        (0x0018 | HCI_GRP_VENDOR_SPECIFIC)    /* set baudrate of BCM2035 */
 #define HCI_BRCM_WRITE_SCO_PCM_INT_PARAM    (0x001C | HCI_GRP_VENDOR_SPECIFIC)    /* set SCO interface param */
 #define HCI_BRCM_READ_SCO_PCM_INT_PARAM     (0x001D | HCI_GRP_VENDOR_SPECIFIC)    /* read SCO interface param */
+#define HCI_BRCM_WRITE_PCM_CONFIG_PARAM     (0x001E | HCI_GRP_VENDOR_SPECIFIC)    /* set PCM interface param */ /* BSA_SPECIFIC */
 #define HCI_BRCM_SET_TX_POWER               (0x0026 | HCI_GRP_VENDOR_SPECIFIC)    /* set TX POWER*/
 #define HCI_BRCM_WRITE_SLEEP_MODE           (0x0027 | HCI_GRP_VENDOR_SPECIFIC)
 #define HCI_BRCM_READ_SLEEP_MODE            (0x0028 | HCI_GRP_VENDOR_SPECIFIC)

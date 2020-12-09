@@ -24,7 +24,7 @@
 #ifdef RT_USING_DRIVER_AUDIO_PCM_PLUGIN_SOFTVOL
 #include "pcm_plugin_provider.h"
 
-static uint16_t vol_l = 10, vol_r = 10;
+static uint16_t vol_l = 50, vol_r = 50;
 static struct rt_device *s_card = NULL;
 #else
 
@@ -116,9 +116,9 @@ static void play_sample(FILE *file, struct rt_device *card, uint32_t channels,
     ret = rt_device_control(card, RK_AUDIO_CTL_PLUGIN_PREPARE, (void *)type);
     RT_ASSERT(ret == RT_EOK);
 
-    softvol.vol_l = vol_l/5;
-    softvol.vol_r = vol_r/5;
-    rt_kprintf("Set softvol: %d, %d\n", vol_l/5, vol_r/5);
+    softvol.vol_l = vol_l/1;
+    softvol.vol_r = vol_r/1;
+    rt_kprintf("Set softvol: %d, %d\n", vol_l/1, vol_r/1);
     ret = rt_device_control(card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
     RT_ASSERT(ret == RT_EOK);
 
@@ -576,17 +576,17 @@ int vol_add()
 {
 	snd_softvol_t softvol = {0};
 	
-	if(vol_r < 100)
+	if(vol_r < 70)
 	{
 		vol_r += 10;
 		vol_l += 10;
-		if(vol_r > 100)
-			vol_r = 100;
-		if(vol_l > 100)
-			vol_l = 100;
+		if(vol_r > 70)
+			vol_r = 70;
+		if(vol_l > 70)
+			vol_l = 70;
 	}
-	softvol.vol_l = vol_r/5;
-	softvol.vol_r = vol_r/5;
+	softvol.vol_l = vol_r/1;
+	softvol.vol_r = vol_r/1;
 	
 	if(s_card == NULL)
 	{
@@ -618,8 +618,8 @@ int vol_sub()
 		if(vol_l < 0)
 			vol_l = 0;
 	}
-	softvol.vol_l = vol_l/5;
-	softvol.vol_r = vol_r/5;
+	softvol.vol_l = vol_l/1;
+	softvol.vol_r = vol_r/1;
 
 	if(s_card == NULL)
 	{
@@ -663,8 +663,8 @@ int vol_set(int argc, char **argv)
 		return 0;
 	}
 
-	softvol.vol_l = vol_l/5;
-	softvol.vol_r = vol_r/5;
+	softvol.vol_l = vol_l/2;
+	softvol.vol_r = vol_r/2;
 
 	if(s_card != NULL)
 		rt_device_control(s_card, RK_AUDIO_CTL_PLUGIN_SET_SOFTVOL, &softvol);
@@ -690,9 +690,11 @@ void read_register()
 	rt_kprintf("0x0000 is 0x%x\n", readl(ACDCDIG_BASE + 0x0038));
 }
 
-void write_register()
+void write_register(int argc, char **argv)
 {
-	writel(ACDCDIG_BASE + 0x0000, 0x000F000F);
+	int x = atoi(argv[1]);
+	writel(ACDCDIG_BASE + 0x0050, x);
+	writel(ACDCDIG_BASE + 0x0054, x);
 }
 
 

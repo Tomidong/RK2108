@@ -50,5 +50,9 @@ void spi1_m1_iomux_config(void);
 void spi2_m0_iomux_config(void);
 void spi2_m1_iomux_config(void);
 void rt_hw_iomux_config(void);
+void sdio_iomux_config2(void);
+void pcm_m0_iomux_config(void);
+void pcm_m1_iomux_config(void);
+
 
 #endif

@@ -105,7 +105,7 @@
 #define RT_USING_DFS
 #define DFS_USING_WORKDIR
 #define DFS_FILESYSTEMS_MAX 3
-#define DFS_FILESYSTEM_TYPES_MAX 3
+#define DFS_FILESYSTEM_TYPES_MAX 2
 #define DFS_FD_MAX 16
 #define RT_USING_DFS_MNTTABLE
 #define RT_USING_DFS_ELMFAT
@@ -312,12 +312,9 @@
 #define PKG_CMBACKTRACE_DUMP_STACK
 #define PKG_CMBACKTRACE_PRINT_ENGLISH
 /* PKG_CMBACKTRACE_PRINT_CHINESE is not set */
-/* PKG_CMBACKTRACE_FAULT_REBOOT is not set */
 /* PKG_CMBACKTRACE_FAULT_DUMP_TO_FLASH is not set */
 /* RT_USING_LOGTRACE is not set */
-#define RT_USING_RYM
-/* YMODEM_USING_CRC_TABLE is not set */
-#define YMODEM_USING_FILE_TRANSFER
+/* RT_USING_RYM is not set */
 /* RT_USING_RZM is not set */
 #define RT_USING_ULOG
 /* ULOG_OUTPUT_LVL_A is not set */
@@ -326,7 +323,7 @@
 /* ULOG_OUTPUT_LVL_I is not set */
 #define ULOG_OUTPUT_LVL_D
 #define ULOG_OUTPUT_LVL 7
-#define ULOG_USING_ISR_LOG
+/* ULOG_USING_ISR_LOG is not set */
 #define ULOG_ASSERT_ENABLE
 #define ULOG_LINE_BUF_SIZE 128
 /* ULOG_USING_ASYNC_OUTPUT is not set */
@@ -354,14 +351,7 @@
 
 /* RT_USING_BENCHMARK is not set */
 /* RT_USING_NET_HTTP is not set */
-#define RT_USING_OTA
-
-/* OTA Component Options */
-
-/* RT_USING_OTA_RECOVERY is not set */
-#define RT_USING_OTA_FROM_LOCAL
-/* RT_USING_OTA_FROM_HTTP is not set */
-/* RT_SUPPORT_ROOT_AB is not set */
+/* RT_USING_OTA is not set */
 
 /* RT-Thread third party package */
 
@@ -410,7 +400,7 @@
 #define RT_CYPRESS_BT
 /* BT_DEV_MODE is not set */
 /* BT_BUILD_VERBOSE is not set */
-#define BT_AUDIO_DEVICE "es8311p"
+#define BT_AUDIO_DEVICE "audpwmp"
 #define BT_MIC_DEVICE "pdmc"
 #define BT_UART_NAME "/dev/uart2"
 /* BT_FACTORY_TEST is not set */
@@ -435,13 +425,13 @@
 
 /* HAL_DBG_ON is not set */
 /* RT_USING_SND_GLB_RST is not set */
-#define RT_USING_RESET
+/* RT_USING_RESET is not set */
 /* RT_USING_CRU_DUMP is not set */
 /* RT_USING_REGULATOR_DUMP is not set */
 /* RT_USING_PMIC is not set */
 #define RT_USING_CACHE
 #define RT_USING_UNCACHE_HEAP
-#define RT_UNCACHE_HEAP_ORDER 0x0E
+#define RT_UNCACHE_HEAP_ORDER 0x10
 #define RT_USING_LARGE_HEAP
 #define RT_LARGE_MALLOC_THRRESH 512
 #define RT_LARGE_HEAP_SIZE 524288
@@ -460,8 +450,8 @@
 
 /* RT-Thread rockchip pm drivers */
 
-#define RT_USING_PM_DVFS
-#define RT_USING_PM_REQ_PWR
+/* RT_USING_PM_DVFS is not set */
+/* RT_USING_PM_REQ_PWR is not set */
 /* RT_USING_PM_REQ_CLK is not set */
 /* RT_USING_DVFS_DBG is not set */
 /* RT_USING_PM_RUNTIME is not set */
@@ -483,7 +473,7 @@
 /* Enable Audio */
 
 #define RT_USING_CODEC
-#define RT_USING_CODEC_ES8311
+#define RT_USING_ACDCDIG
 #define RT_USING_DRIVER_AUDIO_PCM_PLUGIN
 #define RT_USING_DRIVER_AUDIO_PCM_PLUGIN_HW
 #define RT_USING_DRIVER_AUDIO_PCM_PLUGIN_SOFTVOL
@@ -491,7 +481,7 @@
 /* PCM Softvol Configuration */
 
 #define SOFTVOL_MIN_DB "-50.0"
-#define SOFTVOL_MAX_DB "0.0"
+#define SOFTVOL_MAX_DB "49.0"
 #define SOFTVOL_FORMAT "S16_LE"
 #define SOFTVOL_CHANNELS 2
 #define SOFTVOL_RESOLUTION 100
@@ -499,13 +489,16 @@
 /* Audio Cards */
 
 #define RT_USING_AUDIO_CARD
-/* RT_USING_AUDIO_CARD_ACDCDIG is not set */
-/* RT_USING_AUDIO_CARD_AUDIOPWM is not set */
+#define RT_USING_AUDIO_CARD_ACDCDIG
+/* RT_USING_ACDCDIG_PDM0 is not set */
+#define RT_USING_ACDCDIG_PDM0_SDI2
+#define RT_USING_AUDIO_CARD_AUDIOPWM
 /* RT_USING_AUDIO_CARD_I2S_MIC is not set */
 #define RT_USING_AUDIO_CARD_PDM_MIC
+/* RT_USING_AUDIO_CARD_PCM_BT is not set */
 /* RT_USING_AUDIO_CARD_ES7243 is not set */
 /* RT_USING_AUDIO_CARD_ES8156 is not set */
-#define RT_USING_AUDIO_CARD_ES8311
+/* RT_USING_AUDIO_CARD_ES8311 is not set */
 /* RT_USING_AUDIO_CARD_ES8388 is not set */
 /* RT_USING_AUDIO_CARD_ADC_ES8311_ECHO is not set */
 /* RT_USING_AUDIO_CARD_PDM_ES8388_ECHO is not set */
@@ -513,8 +506,7 @@
 /* Audio Interfaces */
 
 #define RT_USING_PCM
-#define RT_USING_I2STDM
-#define RT_USING_I2STDM1
+#define RT_USING_AUDIOPWM
 #define RT_USING_PDM
 #define RT_USING_PDM0
 /* RT_USING_VAD is not set */
@@ -544,7 +536,7 @@
 
 #define RT_USING_I2C0
 /* RT_USING_I2C1 is not set */
-/* RT_USING_I2C2 is not set */
+#define RT_USING_I2C2
 
 /* Enable SPI */
 
@@ -582,7 +574,7 @@
 #define RT_USING_COMMON_TEST
 /* RT_USING_AUTO_TEST is not set */
 /* RT_USING_COMMON_TEST_SUSPEND is not set */
-/* RT_USING_COMMON_TEST_AUDIO is not set */
+#define RT_USING_COMMON_TEST_AUDIO
 /* RT_USING_COMMON_TEST_CODEC_ES8388 is not set */
 /* RT_USING_COMMON_TEST_CPU_USAGE is not set */
 /* RT_USING_COMMON_TEST_DCACHE is not set */
@@ -603,7 +595,6 @@
 /* RT_USING_COMMON_TEST_WDT is not set */
 /* RT_USING_COMMON_TEST_PERFORMANCE is not set */
 /* RT_USING_COMMON_TEST_FWANALYSIS is not set */
-#define RT_USING_COMMON_TEST_OTA
 /* RT_USING_COMMON_TEST_TIMER is not set */
 #define RT_USING_FWANALYSIS
 

@@ -25,9 +25,9 @@
 
 static int rk_wifibt_32k_enable(void)
 {
-    HAL_PINCTRL_SetIOMUX(GPIO_BANK1, BT_32K_CLK_OUT, PIN_CONFIG_MUX_FUNC3);
-    HAL_CRU_ClkEnable(CLK_BT32K_GATE);
-    HAL_CRU_ClkSetFreq(CLK_32K, 32768);
+    //HAL_PINCTRL_SetIOMUX(GPIO_BANK1, BT_32K_CLK_OUT, PIN_CONFIG_MUX_FUNC3);
+    //HAL_CRU_ClkEnable(CLK_BT32K_GATE);
+    //HAL_CRU_ClkSetFreq(CLK_32K, 32768);
 
     return 1;
 }
@@ -100,8 +100,8 @@ uint32_t rk_bt_power_down(void)
     rt_thread_delay(100);
     HAL_GPIO_SetPinDirection(BT_GPIO_PORT_BASE, BT_POWER_GPIO_PIN, GPIO_IN);
 
-    HAL_PINCTRL_SetIOMUX(BT_GPIO_PORT, BT_32K_CLK_OUT, PIN_CONFIG_MUX_FUNC0);
-    HAL_CRU_ClkDisable(CLK_BT32K_GATE);
+    //HAL_PINCTRL_SetIOMUX(BT_GPIO_PORT, BT_32K_CLK_OUT, PIN_CONFIG_MUX_FUNC0);
+    //HAL_CRU_ClkDisable(CLK_BT32K_GATE);
 
     return 1;
 }
